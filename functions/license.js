@@ -4,7 +4,7 @@ const nodemailer = require('nodemailer');
 
 // Database configurations
 const MONGODB_URI = process.env.MONGODB_URI;
-const DB_NAME = 'license';
+const DB_NAME = 'remind-website';
 const LICENSE_COLLECTION = "license";
 
 // private key for the server
@@ -29,18 +29,6 @@ const connectToDatabase = async (uri) => {
 	cachedDb = client.db(DB_NAME);
 
 	return cachedDb;
-};
-
-const queryDatabase = async (db) => {
-	const pokemon = await db.collection("pokemon").find({}).toArray();
-
-	return {
-		statusCode: 200,
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(pokemon),
-	};
 };
 
 function addMinutes(date, minutes) {
@@ -94,14 +82,14 @@ const sendEmail = async (email, workspaceAddress, license, licenseExpiry) => {
 	const mailOptions = {
 		from: MAIL_SENDER,
 		to: email,
-		subject: `Here's your Surveys App License`,
+		subject: `Here's your Reminder App License`,
 		html: `<div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
 		<div style="margin:50px auto;width:70%;padding:20px 0">
 		  <div style="border-bottom:1px solid #eee">
-			<a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Surveys App for Rocket.Chat</a>
+			<a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Reminder App for Rocket.Chat</a>
 		  </div>
 		  <p style="font-size:1.1em">Hi,</p>
-		  <p>Thank you for choosing Surveys App. Here's your Premium License which you can setup following these steps. This license is valid until ${ licenseExpiry.toDateString() }.</p>
+		  <p>Thank you for choosing Reminder App. Here's your Premium License which you can setup following these steps. This license is valid until ${ licenseExpiry.toDateString() }.</p>
 		  <h3>Premium License</h3>
 		<table cellpadding="0" cellspacing="0" style="background: pink;">
 		  	<tr>
@@ -113,13 +101,13 @@ const sendEmail = async (email, workspaceAddress, license, licenseExpiry) => {
 		  <h3>License Setup Guide</h3>
 		  <ol type="1">
 			<li>Login to your Rocket.Chat server - <a href="${workspaceAddress}">${workspaceAddress}</a></li>
-			<li>Goto Apps Setting (<i>Administration</i> -> <i>Apps</i> -> Click on <i>Surveys App</i>)</li>
+			<li>Goto Apps Setting (<i>Administration</i> -> <i>Apps</i> -> Click on <i>Add Reminder</i>)</li>
 			<li>Once you're on the app setting page, there locate the <i>Premium License</i> Setting and there add the above mentioned license key. Then just click on Save Settings and that's it. Your License has now been activated</li>
-			<li>(Optional) To verify if the license is set, just try out any Premium features like sending recurring poll</li>
+			<li>(Optional) To verify if the license is set, just try out any Premium features like creating more than 5 reminders or sending reminders to channels or users</li>
 		  </ol>
 			<h4> Facing any problems?</h4>
-			Feel free to contact us anytime at this email - surveysinchat@gmail.com - and we'd be happy to help you
-		<p style="font-size:0.9em;">Regards,<br />Surveys App Team</p>
+			Feel free to contact us anytime at this email - remindersinchat@gmail.com - and we'd be happy to help you
+		<p style="font-size:0.9em;">Regards,<br />Reminder App Team</p>
 		  <hr style="border:none;border-top:1px solid #eee" />
 		</div>
 	  </div>`

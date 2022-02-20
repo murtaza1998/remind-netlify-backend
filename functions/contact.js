@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 
 // Database configurations
 const MONGODB_URI = process.env.MONGODB_URI;
-const DB_NAME = 'website';
+const DB_NAME = 'remind-website';
 const CONTACT_COLLECTION = "contactUs";
 
 // email configuration
@@ -52,8 +52,8 @@ const sendEmail = async ({ name, email, message }) => {
 	const mailOptions = {
 		from: MAIL_SENDER,
 		to: CONTACT_US_EMAIL_NOTIFICATION,
-		subject: `[Survey App] New contact message received from ${name}`,
-		text: `Hey, Hey, Hey... Guess what, We've made it ;) We received a new contact message from ${name} with email ${email} and message\n ${message}`
+		subject: `[Reminder App] New contact message received from ${name}`,
+		text: `Hey, Hey, Hey... Guess what, We've made it ;) Folks are actually using something we build!!\n\nWe received a new contact message from ${name} with email ${email} and message\n ${message}`
 	};
 	
 	const result = await transporter.sendMail(mailOptions);
