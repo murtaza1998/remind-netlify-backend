@@ -1,0 +1,26 @@
+{
+  "name": "netlify-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "mongodb": "^4.3.1",
+    "nodemailer": "^6.7.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "netlify dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/surveysapp/netlify-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/surveysapp/netlify-server/issues"
+  },
+  "homepage": "https://github.com/surveysapp/netlify-server#readme"
+}
