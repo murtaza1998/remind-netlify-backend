@@ -51,7 +51,8 @@ const generateLicense = (data) => {
 
 	const { workspaceAddress } = data;
 	// 30 days in future
-	const expiry = addMinutes(new Date(), 60*24*30);
+	// const expiry = addMinutes(new Date(), 60*24*30);
+	const expiry = new Date('12-31-2022');
 	const licenseData = {
 		url: workspaceAddress,
 		expiry,
