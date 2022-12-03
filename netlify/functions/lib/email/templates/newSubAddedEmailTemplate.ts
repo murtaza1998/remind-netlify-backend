@@ -4,7 +4,7 @@ export const newSubAddedEmailTemplateBody = `<div style="font-family: Helvetica,
 	<a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">New Reminder App Subscription was Added </a>
   </div>
   <p style="font-size:1.1em">Hi,</p>
-  <p>Thank you for choosing Reminder App! Your {{licenseDuration}} subscription has been successfully activated. You may find the license key within this email which you would need to activate your license within your Rocket.Chat workspace. Please follow the "License Setup Guide" to activate your license. </p>
+  <p>Thank you for choosing Reminder App! Your {{planDuration}} subscription has been successfully activated 🎉 You may find the license key within this email which you would need to activate your license within your Rocket.Chat workspace. Please follow the "License Setup Guide" to activate your license. </p>
   <h3>Premium License</h3>
 <table cellpadding="0" cellspacing="0" style="background: pink;">
 	  <tr>
@@ -16,7 +16,7 @@ export const newSubAddedEmailTemplateBody = `<div style="font-family: Helvetica,
 <h3>License Setup Guide:</h3> <a href="https://add-reminders.gitbook.io/docs/guides/premium-license/how-to-set-up-your-license-on-rocket.chat-server">Click here for instructions on how to setup your license key</a>
 <h3>A couple of important notes about your license key:</h3>
 <ul>
-<li>It's for workspace with URL: {{workspaceUrl}}</li>
+<li>It's for workspace with URL: {{workspaceAddress}}</li>
 <li>Its valid until: {{licenseExpiration}}</li>
 <li>On your next renewal, we'd send you an another license key which should get replaced with this one. You can find more info about the renewal process <a href="https://add-reminders.gitbook.io/docs/guides/premium-license"> here </a>. </li>
 </ul>

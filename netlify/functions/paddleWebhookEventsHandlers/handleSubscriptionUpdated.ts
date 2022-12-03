@@ -1,24 +1,19 @@
-import {
-  COLLECTION_LMP_USER_PAYMENT_DATA,
-  connectToDatabase,
-  DB_LMP,
-} from "../../database";
+import { Db } from "mongodb";
+import { COLLECTION_LMP_USER_PAYMENT_DATA } from "../../database";
 import { API_Response } from "../../definitions/API";
 import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
 import {
-  AlertName,
   PaddleSubscriptionStatus,
   SubscriptionUpdatedRequest,
 } from "../../definitions/paddle";
 
 export const handleSubscriptionUpdated = async (
+  db: Db,
   subscriptionUpdated: SubscriptionUpdatedRequest
 ): Promise<API_Response> => {
   console.info(
     `Handling subscription updated event for subscription with id ${subscriptionUpdated.subscription_id} and alert id ${subscriptionUpdated.alert_id}`
   );
-
-  const db = await connectToDatabase(DB_LMP);
 
   // find existing user payment data by subscription id
   const existingUserPaymentData = await db

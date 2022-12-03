@@ -3,12 +3,13 @@ import { Db, MongoClient } from "mongodb";
 const MONGODB_URI = process.env.MONGODB_URI;
 
 // name of database
-export const DB_LMP = "lmp";
+export const DB_LMP = process.env.DB_LMP;
 
 // name of collections
 export const COLLECTION_LMP_USERS = "users";
 export const COLLECTION_LMP_USER_PAYMENT_DATA = "userPaymentData";
-export const COLLECTION_LMP_USER_PAYMENT_HISTORY = "userPaymentHistory";
+export const COLLECTION_LMP_SUBSCRIPTION_PAYMENT_HISTORY =
+  "subscriptionPaymentHistory";
 
 let cachedDb: Db | null = null;
 
@@ -28,4 +29,11 @@ export const connectToDatabase = async (dbName: string): Promise<Db> => {
   cachedDb = client.db(dbName);
 
   return cachedDb;
+};
+
+export const connectToLMPDatabase = async (): Promise<Db> => {
+  if (!DB_LMP) {
+    throw new Error("DB_LMP is not set");
+  }
+  return connectToDatabase(DB_LMP);
 };

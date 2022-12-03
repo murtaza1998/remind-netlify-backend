@@ -1,14 +1,13 @@
-import {
-  COLLECTION_LMP_USER_PAYMENT_DATA,
-  connectToDatabase,
-  DB_LMP,
-} from "../../database";
+import { Db } from "mongodb";
+import { COLLECTION_LMP_USER_PAYMENT_DATA } from "../../database";
 import { API_Response } from "../../definitions/API";
 import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
 import { SubscriptionCreatedRequest } from "../../definitions/paddle";
+import { PaymentEmailer } from "../lib/email/paymentEmailer";
 import { isPositive } from "./utils";
 
 export const handleSubscriptionCreated = async (
+  db: Db,
   subscriptionCreated: SubscriptionCreatedRequest
 ): Promise<API_Response> => {
   console.info(
@@ -32,8 +31,6 @@ export const handleSubscriptionCreated = async (
       },
     };
   }
-
-  const db = await connectToDatabase(DB_LMP);
 
   const upd: Omit<userPaymentData, "_id"> = {
     userId: subscriptionCreated.user_id,
@@ -65,7 +62,16 @@ export const handleSubscriptionCreated = async (
     };
   }
 
-  // TODO: send email to user
+  console.info(
+    `Inserted user payment data for user ${subscriptionCreated.email} with subscription id ${subscriptionCreated.subscription_id} and alert id ${subscriptionCreated.alert_id}`
+  );
+
+  if (subscriptionCreated.status === "active") {
+    await PaymentEmailer.sendNewSubscriptionCreatedEmail(
+      subscriptionCreated.email,
+      upd
+    );
+  }
 
   return {
     statusCode: 200,

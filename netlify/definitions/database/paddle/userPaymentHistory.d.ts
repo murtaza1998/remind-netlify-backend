@@ -25,7 +25,7 @@ export type subscriptionPaymentHistory = {
   };
   failedTransaction?: {
     attemptNumber: string; // - for failed payments, we store how often it was already retried
-    nextRetryDate: string; // - we also store when the next retry will take place
+    nextRetryDate?: string; // - we also store when the next retry will take place
   };
   refundedTransaction?: {
     refundReason: string; // - for refunds we store the reason

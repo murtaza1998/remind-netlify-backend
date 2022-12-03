@@ -1,26 +1,23 @@
+import { Db } from "mongodb";
 import {
   COLLECTION_LMP_USER_PAYMENT_DATA,
-  COLLECTION_LMP_USER_PAYMENT_HISTORY,
-  connectToDatabase,
-  DB_LMP,
+  COLLECTION_LMP_SUBSCRIPTION_PAYMENT_HISTORY,
 } from "../../database";
 import { API_Response } from "../../definitions/API";
 import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
 import { subscriptionPaymentHistory } from "../../definitions/database/paddle/userPaymentHistory";
 import {
-  AlertName,
   PaymentStatus,
   SubscriptionPaymentFailedRequest,
 } from "../../definitions/paddle";
 
 export const handleSubscriptionPaymentFailed = async (
+  db: Db,
   subscriptionPayFailed: SubscriptionPaymentFailedRequest
 ): Promise<API_Response> => {
   console.info(
     `Handling subscription payment failed event for subscription with id ${subscriptionPayFailed.subscription_id} and alert id ${subscriptionPayFailed.alert_id}`
   );
-
-  const db = await connectToDatabase(DB_LMP);
 
   // find existing user payment data by subscription id
   const existingUserPaymentData = await db
@@ -99,7 +96,9 @@ export const handleSubscriptionPaymentFailed = async (
   };
 
   const paymentHistoryResult = await db
-    .collection<subscriptionPaymentHistory>(COLLECTION_LMP_USER_PAYMENT_HISTORY)
+    .collection<subscriptionPaymentHistory>(
+      COLLECTION_LMP_SUBSCRIPTION_PAYMENT_HISTORY
+    )
     .insertOne(paymentHistory);
   if (!paymentHistoryResult.insertedId) {
     console.error(

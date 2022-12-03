@@ -1,9 +1,7 @@
 import { Db } from "mongodb";
 import {
   COLLECTION_LMP_USER_PAYMENT_DATA,
-  COLLECTION_LMP_USER_PAYMENT_HISTORY,
-  connectToDatabase,
-  DB_LMP,
+  COLLECTION_LMP_SUBSCRIPTION_PAYMENT_HISTORY,
 } from "../../database";
 import { API_Response } from "../../definitions/API";
 import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
@@ -15,20 +13,19 @@ import {
 import { isPositive } from "./utils";
 
 export const handleSubscriptionPaymentSucceeded = async (
+  db: Db,
   subscriptionSucceeded: SubscriptionPaymentSucceededRequest
 ): Promise<API_Response> => {
   console.info(
     `Handling subscription payment succeeded event for subscription with id ${subscriptionSucceeded.subscription_id} and alert id ${subscriptionSucceeded.alert_id}`
   );
 
-  const db = await connectToDatabase(DB_LMP);
-
   const { initial_payment } = subscriptionSucceeded;
   if (isPositive(initial_payment)) {
-    handleInitialPayment(subscriptionSucceeded, db);
+    await handleInitialPayment(subscriptionSucceeded, db);
   } else {
     try {
-      handleRenewalPayment(subscriptionSucceeded, db);
+      await handleRenewalPayment(subscriptionSucceeded, db);
     } catch (e) {
       console.error("Error handling renewal payment", e);
       return {
@@ -68,7 +65,9 @@ export const handleSubscriptionPaymentSucceeded = async (
   };
 
   const paymentHistoryResult = await db
-    .collection<subscriptionPaymentHistory>(COLLECTION_LMP_USER_PAYMENT_HISTORY)
+    .collection<subscriptionPaymentHistory>(
+      COLLECTION_LMP_SUBSCRIPTION_PAYMENT_HISTORY
+    )
     .insertOne(paymentHistory);
   if (!paymentHistoryResult.insertedId) {
     console.error(

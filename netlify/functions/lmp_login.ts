@@ -1,5 +1,5 @@
 import { Handler } from "@netlify/functions";
-import { connectToDatabase, DB_LMP, COLLECTION_LMP_USERS } from "../database";
+import { COLLECTION_LMP_USERS, connectToLMPDatabase } from "../database";
 import { API_Response } from "../definitions/API";
 import { lmpUser } from "../definitions/database/lmpUser";
 import { verifyHash } from "../hash";
@@ -11,8 +11,6 @@ type API_PAYLOAD = {
 };
 
 const handler: Handler = async (event, context) => {
-  const db = await connectToDatabase(DB_LMP);
-
   const { body } = event;
   if (!body) {
     return {
@@ -48,7 +46,7 @@ const internalHandler = async ({
   email,
   password,
 }: API_PAYLOAD): Promise<API_Response> => {
-  const db = await connectToDatabase(DB_LMP);
+  const db = await connectToLMPDatabase();
 
   if (!email || !password || email.trim() === "" || password.trim() === "") {
     return {

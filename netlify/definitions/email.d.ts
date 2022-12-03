@@ -1,6 +1,6 @@
 export type newSubAddedTemplateProps = {
-  licenseDuration: "Monthly" | "Yearly";
+  planDuration: "Monthly" | "Yearly";
   license: string;
-  workspaceUrl: string;
+  workspaceAddress: string;
   licenseExpiration: string;
 };

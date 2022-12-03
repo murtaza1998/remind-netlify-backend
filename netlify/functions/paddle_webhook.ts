@@ -1,13 +1,12 @@
 import { Handler } from "@netlify/functions";
-import { connectToDatabase, DB_LMP } from "../database";
 import { API_Response } from "../definitions/API";
-import { userPaymentData } from "../definitions/database/paddle/userPaymentData";
 import {
   AlertName,
   BasePaddleRequest,
   SubscriptionCancelledRequest,
   SubscriptionCreatedRequest,
   SubscriptionPaymentFailedRequest,
+  SubscriptionPaymentRefundedRequest,
   SubscriptionPaymentSucceededRequest,
   SubscriptionUpdatedRequest,
 } from "../definitions/paddle";
@@ -18,6 +17,18 @@ import { handleSubscriptionUpdated } from "./paddleWebhookEventsHandlers/handleS
 import { handleSubscriptionCancelled } from "./paddleWebhookEventsHandlers/handleSubscriptionCancelled";
 import { handleSubscriptionPaymentSucceeded } from "./paddleWebhookEventsHandlers/handleSubscriptionPaymentSucceeded";
 import { handleSubscriptionPaymentFailed } from "./paddleWebhookEventsHandlers/handleSubscriptionPaymentFailed";
+import { connectToLMPDatabase } from "../database";
+import { handleSubscriptionPaymentRefunded } from "./paddleWebhookEventsHandlers/handleSubscriptionPaymentRefunded";
+
+/**
+ *
+ * References:
+ * - https://github.com/daveagill/verify-paddle-webhook
+ * - https://gist.github.com/dsumer/5a4b120d6c8bde061b75667b067797c7
+ * - https://snappify.io/blog/step-by-step-guide-for-paddle-integration
+ * - https://github.com/sarimabbas/paddle-webhook-utils
+ * - https://www.npmjs.com/package/paddle-sdk
+ */
 
 const handler: Handler = async (event, context) => {
   const { body } = event;
@@ -60,27 +71,30 @@ const handler: Handler = async (event, context) => {
   // we keep the DB connection alive
   context.callbackWaitsForEmptyEventLoop = false;
 
+  const db = await connectToLMPDatabase();
+
   let response: API_Response;
   switch (parsedBody.alert_name) {
     case AlertName.SubscriptionCreated: {
       const subscriptionCreated = parsedBody as SubscriptionCreatedRequest;
-      response = await handleSubscriptionCreated(subscriptionCreated);
+      response = await handleSubscriptionCreated(db, subscriptionCreated);
       break;
     }
     case AlertName.SubscriptionUpdated: {
       const subscriptionUpdated = parsedBody as SubscriptionUpdatedRequest;
-      response = await handleSubscriptionUpdated(subscriptionUpdated);
+      response = await handleSubscriptionUpdated(db, subscriptionUpdated);
       break;
     }
     case AlertName.SubscriptionCancelled: {
       const subscriptionCancelled = parsedBody as SubscriptionCancelledRequest;
-      response = await handleSubscriptionCancelled(subscriptionCancelled);
+      response = await handleSubscriptionCancelled(db, subscriptionCancelled);
       break;
     }
     case AlertName.SubscriptionPaymentSucceeded: {
       const subscriptionPaymentSucceeded =
         parsedBody as SubscriptionPaymentSucceededRequest;
       response = await handleSubscriptionPaymentSucceeded(
+        db,
         subscriptionPaymentSucceeded
       );
       break;
@@ -89,26 +103,34 @@ const handler: Handler = async (event, context) => {
       const subscriptionPaymentFailed =
         parsedBody as SubscriptionPaymentFailedRequest;
       response = await handleSubscriptionPaymentFailed(
+        db,
         subscriptionPaymentFailed
       );
+      break;
+    }
+    case AlertName.SubscriptionPaymentRefunded: {
+      const subscriptionPaymentRefunded =
+        parsedBody as SubscriptionPaymentRefundedRequest;
+      response = await handleSubscriptionPaymentRefunded(
+        db,
+        subscriptionPaymentRefunded
+      );
+      break;
+    }
+    default: {
+      console.error(
+        `Unknown Paddle webhook received: ${parsedBody.alert_name} with alert_id ${parsedBody.alert_id}`
+      );
+      response = {
+        statusCode: 400,
+        error: {
+          message: "Unknown Paddle webhook received",
+        },
+      };
     }
   }
 
-  // TODO: https://github.com/daveagill/verify-paddle-webhook
-
-  // TODO: POSSIBLE TYPING: https://github.com/sarimabbas/paddle-webhook-utils
-  // OR: https://gist.github.com/dsumer/5a4b120d6c8bde061b75667b067797c7
-
-  // TODO: https://www.npmjs.com/package/paddle-sdk
-  return {
-    statusCode: 200,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      message: "Hello World",
-    }),
-  };
+  return response;
 };
 
 export { handler };
