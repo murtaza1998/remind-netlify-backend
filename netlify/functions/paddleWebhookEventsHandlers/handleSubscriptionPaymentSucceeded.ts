@@ -26,6 +26,7 @@ export const handleSubscriptionPaymentSucceeded = async (
     initial_payment,
     status: latestSubscriptionStatus,
     next_bill_date,
+    receipt_url,
   } = subscriptionSucceeded;
   let existingUserPaymentData: WithId<userPaymentData> | null = null;
   if (isPositive(initial_payment)) {
@@ -123,6 +124,7 @@ export const handleSubscriptionPaymentSucceeded = async (
         },
         passthrough: existingUserPaymentData.passthrough,
         renewalDate: paymentHistory.createdAt,
+        renewalReceipt: receipt_url,
       });
     }
   }

@@ -5,7 +5,7 @@ export const subRenewalSuccessEmailTemplateBody = `<div style="font-family: Helv
   </div>
   <p style="font-size:1.1em">Hi,</p>
   <p>Thank you for choosing Reminder App! We hope you're enjoying the Reminder app on your Rocket.Chat workspace 😃<p/>
-<p> We're writing to inform you that your Reminder app subscription has been successfully renewed on {{renewalDate}}. Correspondingly a new license key has been generated for your {{planDuration}} subscription, which you may find within this email. Please follow the "License Setup Guide" to activate your license. </p>
+<p> We're writing to inform you that your Reminder app subscription has been successfully renewed on {{renewalDate}} UTC. Correspondingly a new license key has been generated for your {{planDuration}} subscription, which you may find within this email. Please follow the "License Setup Guide" to activate your license. </p>
   <h3>Premium License</h3>
 <table cellpadding="0" cellspacing="0" style="background: pink;">
 	  <tr>
@@ -14,6 +14,7 @@ export const subRenewalSuccessEmailTemplateBody = `<div style="font-family: Helv
 		</td>
 	</tr>
 </table>
+<h3>Renewal Transaction receipt:</h3> <a href="{{renewalReceipt}}">Click here for download your payment receipt for this renewal subscription</a>
 <h3>License Setup Guide:</h3> <a href="https://add-reminders.gitbook.io/docs/guides/premium-license/how-to-set-up-your-license-on-rocket.chat-server">Click here for instructions on how to setup your license key</a>
 <h3>A couple of important notes about your license key:</h3>
 <ul>

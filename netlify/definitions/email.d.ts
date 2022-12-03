@@ -11,4 +11,5 @@ export type subRenewalSuccessTemplateProps = {
   license: string;
   workspaceAddress: string;
   licenseExpiration: string;
+  renewalReceipt: string;
 };

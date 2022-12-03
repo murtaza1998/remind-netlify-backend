@@ -68,11 +68,13 @@ class PaymentEmailerClass {
     subscription: { planId, endDate },
     passthrough: { workspaceAddress },
     renewalDate,
+    renewalReceipt,
   }: {
     to: string;
     subscription: { planId: string; endDate: string };
     passthrough: { workspaceAddress: string };
     renewalDate: string;
+    renewalReceipt: string;
   }): Promise<void> {
     console.info(`Sending subscription renewed email to ${to}`);
 
@@ -92,6 +94,7 @@ class PaymentEmailerClass {
           licenseExpiration: endDate,
           workspaceAddress,
           renewalDate,
+          renewalReceipt,
         }
       );
 
