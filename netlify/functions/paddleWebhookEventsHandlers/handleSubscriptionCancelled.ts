@@ -64,6 +64,10 @@ export const handleSubscriptionCancelled = async (
 
   await PaymentEmailer.sendSubscriptionCancelledEmail({
     to: existingUserPaymentData.email,
+    subscription: {
+      planId: existingUserPaymentData.subscription.planId,
+      endDate: subscriptionCancelled.cancellation_effective_date,
+    },
   });
 
   return {

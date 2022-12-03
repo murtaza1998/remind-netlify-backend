@@ -21,3 +21,8 @@ export type activeSubsUpdatedTemplateProps = {
   workspaceAddress: string;
   licenseExpiration: string;
 };
+
+export type subsCancelEmailTemplateProps = {
+  planDuration: "Monthly" | "Yearly";
+  endDate: string;
+};

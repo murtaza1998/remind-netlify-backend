@@ -3,6 +3,7 @@ import {
   activeSubsUpdatedTemplateProps,
   newSubAddedTemplateProps,
   subRenewalSuccessTemplateProps,
+  subsCancelEmailTemplateProps,
 } from "../../../definitions/email";
 import { generateLicense } from "../license/generateLicense";
 import { PaddlePlan } from "../paddle/plan";
@@ -174,16 +175,33 @@ class PaymentEmailerClass {
     }
   }
 
-  async sendSubscriptionCancelledEmail({ to }: { to: string }): Promise<void> {
+  async sendSubscriptionCancelledEmail({
+    to,
+    subscription: { planId, endDate },
+  }: {
+    to: string;
+    subscription: { planId: string; endDate: string };
+  }): Promise<void> {
     console.info(
       `Sending subscription cancelled email to ${to} at ${new Date()}`
     );
+
+    const planDuration = PaddlePlan.getPlanName(planId);
+
+    const emailBody =
+      substituteEmailTemplateParams<subsCancelEmailTemplateProps>(
+        subsCancelEmailTemplateBody,
+        {
+          planDuration,
+          endDate,
+        }
+      );
 
     try {
       await getZohoContactMailer().sendEmail(
         to,
         subsCancelEmailTemplateSubject,
-        subsCancelEmailTemplateBody
+        emailBody
       );
 
       console.info(

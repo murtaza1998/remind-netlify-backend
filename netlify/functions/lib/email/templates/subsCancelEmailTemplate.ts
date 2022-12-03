@@ -4,7 +4,7 @@ export const subsCancelEmailTemplateBody = `<div style="font-family: Helvetica,A
 	<a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">We're sad to see you go 😢</a>
   </div>
   <p style="font-size:1.1em">Hi,</p>
-  <p>Your Reminder App subscription has been cancelled! We're really sorry to see you go, but thanks for giving us a try!<p/>
+  <p>Your Reminder App {{planDuration}} subscription has been cancelled! Your effective last date within Premium plan is {{endDate}} UTC. We're really sorry to see you go, but thanks for giving us a try!<p/>
 <h3>You won't be charged again </h3>
 <p> If you had a paying plan, then you won't be charged again. <a href="https://appsforchat.com/contact">Contact us</a> if you have any queries about charges or refunds.</p>
 <h3>Make a mistake? Having second thoughts? </h3>
