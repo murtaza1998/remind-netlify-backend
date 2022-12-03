@@ -1,4 +1,4 @@
-import { Db } from "mongodb";
+import { Db, WithId } from "mongodb";
 import {
   COLLECTION_LMP_USER_PAYMENT_DATA,
   COLLECTION_LMP_SUBSCRIPTION_PAYMENT_HISTORY,
@@ -7,9 +7,11 @@ import { API_Response } from "../../definitions/API";
 import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
 import { subscriptionPaymentHistory } from "../../definitions/database/paddle/userPaymentHistory";
 import {
+  PaddleSubscriptionStatus,
   PaymentStatus,
   SubscriptionPaymentSucceededRequest,
 } from "../../definitions/paddle";
+import { PaymentEmailer } from "../lib/email/paymentEmailer";
 import { isPositive } from "./utils";
 
 export const handleSubscriptionPaymentSucceeded = async (
@@ -20,12 +22,33 @@ export const handleSubscriptionPaymentSucceeded = async (
     `Handling subscription payment succeeded event for subscription with id ${subscriptionSucceeded.subscription_id} and alert id ${subscriptionSucceeded.alert_id}`
   );
 
-  const { initial_payment } = subscriptionSucceeded;
+  const {
+    initial_payment,
+    status: latestSubscriptionStatus,
+    next_bill_date,
+  } = subscriptionSucceeded;
+  let existingUserPaymentData: WithId<userPaymentData> | null = null;
   if (isPositive(initial_payment)) {
     await handleInitialPayment(subscriptionSucceeded, db);
   } else {
     try {
-      await handleRenewalPayment(subscriptionSucceeded, db);
+      // find existing user payment data by subscription id
+      existingUserPaymentData = await db
+        .collection<userPaymentData>(COLLECTION_LMP_USER_PAYMENT_DATA)
+        .findOne({
+          "subscription.id": subscriptionSucceeded.subscription_id,
+        });
+
+      if (!existingUserPaymentData) {
+        throw new Error(
+          `Could not find user payment data for subscription id ${subscriptionSucceeded.subscription_id}`
+        );
+      }
+      await handleRenewalPayment(
+        subscriptionSucceeded,
+        existingUserPaymentData,
+        db
+      );
     } catch (e) {
       console.error("Error handling renewal payment", e);
       return {
@@ -81,11 +104,27 @@ export const handleSubscriptionPaymentSucceeded = async (
     };
   }
 
-  // TODO: send email to user incase it's a renewal
   if (isPositive(subscriptionSucceeded.initial_payment)) {
     // No need to send email for initial payment since we're already sending an email on "handleSubscriptionCreate" event
   } else {
     // send email to user with their license key
+    if (!existingUserPaymentData) {
+      throw new Error(
+        "existingUserPaymentData is null. This should not happen"
+      );
+    }
+
+    if (latestSubscriptionStatus === PaddleSubscriptionStatus.Active) {
+      await PaymentEmailer.sendSubscriptionRenewedEmail({
+        to: existingUserPaymentData.email,
+        subscription: {
+          planId: existingUserPaymentData.subscription.planId,
+          endDate: next_bill_date,
+        },
+        passthrough: existingUserPaymentData.passthrough,
+        renewalDate: paymentHistory.createdAt,
+      });
+    }
   }
 
   return {
@@ -105,27 +144,14 @@ const handleInitialPayment = async (
 
 const handleRenewalPayment = async (
   subscriptionSucceeded: SubscriptionPaymentSucceededRequest,
+  existingUserPaymentData: WithId<userPaymentData>,
   db: Db
 ) => {
-  // find existing user payment data by subscription id
-  const existingUserPaymentData = await db
-    .collection<userPaymentData>(COLLECTION_LMP_USER_PAYMENT_DATA)
-    .findOne({
-      "subscription.id": subscriptionSucceeded.subscription_id,
-    });
-
-  if (!existingUserPaymentData) {
-    throw new Error(
-      `Could not find user payment data for subscription id ${subscriptionSucceeded.subscription_id}`
-    );
-  }
-
   // update user payment data with new data
   const upd: Partial<userPaymentData> = {
     subscription: {
       ...existingUserPaymentData.subscription,
       status: subscriptionSucceeded.status,
-      planId: subscriptionSucceeded.subscription_plan_id,
       endDate: subscriptionSucceeded.next_bill_date,
     },
     alertIds: [
