@@ -3,6 +3,7 @@ import { COLLECTION_LMP_USER_PAYMENT_DATA } from "../../database";
 import { API_Response } from "../../definitions/API";
 import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
 import { SubscriptionCancelledRequest } from "../../definitions/paddle";
+import { PaymentEmailer } from "../lib/email/paymentEmailer";
 
 export const handleSubscriptionCancelled = async (
   db: Db,
@@ -61,7 +62,9 @@ export const handleSubscriptionCancelled = async (
     };
   }
 
-  // TODO: send email to user
+  await PaymentEmailer.sendSubscriptionCancelledEmail({
+    to: existingUserPaymentData.email,
+  });
 
   return {
     statusCode: 200,

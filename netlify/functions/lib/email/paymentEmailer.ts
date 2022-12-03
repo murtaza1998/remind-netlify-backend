@@ -1,12 +1,16 @@
 import { userPaymentData } from "../../../definitions/database/paddle/userPaymentData";
-import { subscriptionPaymentHistory } from "../../../definitions/database/paddle/userPaymentHistory";
 import {
+  activeSubsUpdatedTemplateProps,
   newSubAddedTemplateProps,
   subRenewalSuccessTemplateProps,
 } from "../../../definitions/email";
 import { generateLicense } from "../license/generateLicense";
 import { PaddlePlan } from "../paddle/plan";
 import { getZohoContactMailer } from "./emailProvider";
+import {
+  activeSubsUpdatedEmailTemplateBody,
+  activeSubsUpdatedEmailTemplateSubject,
+} from "./templates/activeSubsUpdatedEmailTemplate";
 import {
   newSubAddedEmailTemplateBody,
   newSubAddedEmailTemplateSubject,
@@ -15,6 +19,10 @@ import {
   subRenewalSuccessEmailTemplateBody,
   subRenewalSuccessEmailTemplateSubject,
 } from "./templates/subRenewalSuccessEmailTemplate";
+import {
+  subsCancelEmailTemplateBody,
+  subsCancelEmailTemplateSubject,
+} from "./templates/subsCancelEmailTemplate";
 import { substituteEmailTemplateParams } from "./utils";
 
 class PaymentEmailerClass {
@@ -59,7 +67,7 @@ class PaymentEmailerClass {
       );
     } catch (error) {
       // Let's not fail the whole request if the email fails
-      console.error(`Failed to send email to ${to}`, error);
+      console.error(`Failed to send subscription created email to ${to}`);
     }
   }
 
@@ -109,7 +117,84 @@ class PaymentEmailerClass {
       console.info(`Sent subscription renewed email to ${to} at ${new Date()}`);
     } catch (error) {
       // Let's not fail the whole request if the email fails
-      console.error(`Failed to send email to ${to}`, error);
+      console.error(
+        `Failed to send subscription renewed email to ${to}`,
+        error
+      );
+    }
+  }
+
+  async activeSubscriptionsUpdatedEmail({
+    to,
+    subscription: { planId, endDate },
+    passthrough: { workspaceAddress },
+    updatedDate,
+  }: {
+    to: string;
+    subscription: { planId: string; endDate: string };
+    passthrough: { workspaceAddress: string };
+    updatedDate: string;
+  }): Promise<void> {
+    console.info(`Sending subscription updated email to ${to}`);
+
+    const planDuration = PaddlePlan.getPlanName(planId);
+
+    const license = generateLicense({
+      workspaceAddress,
+      expiry: new Date(endDate),
+    });
+
+    const emailBody =
+      substituteEmailTemplateParams<activeSubsUpdatedTemplateProps>(
+        activeSubsUpdatedEmailTemplateBody,
+        {
+          license,
+          licenseExpiration: endDate,
+          workspaceAddress,
+          latestPlanDuration: planDuration,
+          updatedDate,
+        }
+      );
+
+    console.debug(`Sending email to ${to} at ${new Date()}`);
+
+    try {
+      await getZohoContactMailer().sendEmail(
+        to,
+        activeSubsUpdatedEmailTemplateSubject,
+        emailBody
+      );
+      console.info(`Sent subscription updated email to ${to} at ${new Date()}`);
+    } catch (error) {
+      // Let's not fail the whole request if the email fails
+      console.error(
+        `Failed to send subscription updated email to ${to}`,
+        error
+      );
+    }
+  }
+
+  async sendSubscriptionCancelledEmail({ to }: { to: string }): Promise<void> {
+    console.info(
+      `Sending subscription cancelled email to ${to} at ${new Date()}`
+    );
+
+    try {
+      await getZohoContactMailer().sendEmail(
+        to,
+        subsCancelEmailTemplateSubject,
+        subsCancelEmailTemplateBody
+      );
+
+      console.info(
+        `Sent subscription cancelled email to ${to} at ${new Date()}`
+      );
+    } catch (error) {
+      // Let's not fail the whole request if the email fails
+      console.error(
+        `Failed to send subscription cancelled email to ${to}`,
+        error
+      );
     }
   }
 }

@@ -6,6 +6,7 @@ import {
   PaddleSubscriptionStatus,
   SubscriptionUpdatedRequest,
 } from "../../definitions/paddle";
+import { PaymentEmailer } from "../lib/email/paymentEmailer";
 
 export const handleSubscriptionUpdated = async (
   db: Db,
@@ -68,7 +69,16 @@ export const handleSubscriptionUpdated = async (
   }
 
   if (subscriptionUpdated.status === PaddleSubscriptionStatus.Active) {
-    // TODO: send email to user with updated license key
+    // send email to user
+    await PaymentEmailer.activeSubscriptionsUpdatedEmail({
+      to: existingUserPaymentData.email,
+      subscription: {
+        planId: subscriptionUpdated.subscription_plan_id,
+        endDate: subscriptionUpdated.next_bill_date,
+      },
+      passthrough: existingUserPaymentData.passthrough,
+      updatedDate: subscriptionUpdated.event_time,
+    });
   }
 
   return {

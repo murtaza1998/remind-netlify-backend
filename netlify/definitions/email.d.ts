@@ -13,3 +13,11 @@ export type subRenewalSuccessTemplateProps = {
   licenseExpiration: string;
   renewalReceipt: string;
 };
+
+export type activeSubsUpdatedTemplateProps = {
+  updatedDate: string;
+  latestPlanDuration: "Monthly" | "Yearly";
+  license: string;
+  workspaceAddress: string;
+  licenseExpiration: string;
+};
