@@ -11,10 +11,12 @@ export type userPaymentData = {
     updateUrl: string;
     cancelUrl: string;
   };
+  passthrough: paddlePassthrough;
   checkoutId: string;
   marketingConsent: boolean;
-  debugMetadata: {
-    alertId: string;
-    eventTime: string;
-  };
+  alertIds: string[];
+};
+
+export type paddlePassthrough = {
+  workspaceAddress: string;
 };

@@ -1,16 +1,11 @@
 import {
   COLLECTION_LMP_USER_PAYMENT_DATA,
-  COLLECTION_LMP_USER_PAYMENT_DATA_ARCHIVE,
   connectToDatabase,
   DB_LMP,
 } from "../../database";
 import { API_Response } from "../../definitions/API";
 import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
-import { userPaymentDataArchive } from "../../definitions/database/paddle/userPaymentDataArchive";
-import {
-  AlertName,
-  SubscriptionCancelledRequest,
-} from "../../definitions/paddle";
+import { SubscriptionCancelledRequest } from "../../definitions/paddle";
 
 export const handleSubscriptionCancelled = async (
   subscriptionCancelled: SubscriptionCancelledRequest
@@ -48,11 +43,10 @@ export const handleSubscriptionCancelled = async (
       status: subscriptionCancelled.status,
       endDate: subscriptionCancelled.cancellation_effective_date,
     },
-    debugMetadata: {
-      ...existingUserPaymentData.debugMetadata,
-      alertId: subscriptionCancelled.alert_id,
-      eventTime: subscriptionCancelled.event_time,
-    },
+    alertIds: [
+      ...existingUserPaymentData.alertIds,
+      subscriptionCancelled.alert_id,
+    ],
   };
 
   const result = await db
@@ -71,41 +65,7 @@ export const handleSubscriptionCancelled = async (
     };
   }
 
-  // save old data to history
-  const history = await db
-    .collection<userPaymentDataArchive>(
-      COLLECTION_LMP_USER_PAYMENT_DATA_ARCHIVE
-    )
-    .insertOne({
-      userId: existingUserPaymentData.userId,
-      subscriptionId: existingUserPaymentData.subscription.id,
-      action: AlertName.SubscriptionCancelled,
-      history: {
-        status: existingUserPaymentData.subscription.status,
-        planId: existingUserPaymentData.subscription.planId,
-        endDate: existingUserPaymentData.subscription.endDate,
-        updateUrl: existingUserPaymentData.subscription.updateUrl,
-        cancelUrl: existingUserPaymentData.subscription.cancelUrl,
-      },
-      historyMetadata: {
-        alertId: existingUserPaymentData.debugMetadata.alertId,
-        eventTime: existingUserPaymentData.debugMetadata.eventTime,
-      },
-      debugMetadata: {
-        alertId: subscriptionCancelled.alert_id,
-        eventTime: subscriptionCancelled.event_time,
-      },
-    });
-
-  if (!history.insertedId) {
-    console.error(
-      `Could not insert user payment data history for subscription id ${subscriptionCancelled.subscription_id} when handling subscription cancelled event`
-    );
-  }
-
   // TODO: send email to user
-
-  // TODO: Possibly generate a license key for the user and send it to them
 
   return {
     statusCode: 200,

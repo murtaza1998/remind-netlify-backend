@@ -1,14 +1,13 @@
 import {
   COLLECTION_LMP_USER_PAYMENT_DATA,
-  COLLECTION_LMP_USER_PAYMENT_DATA_ARCHIVE,
   connectToDatabase,
   DB_LMP,
 } from "../../database";
 import { API_Response } from "../../definitions/API";
 import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
-import { userPaymentDataArchive } from "../../definitions/database/paddle/userPaymentDataArchive";
 import {
   AlertName,
+  PaddleSubscriptionStatus,
   SubscriptionUpdatedRequest,
 } from "../../definitions/paddle";
 
@@ -51,11 +50,10 @@ export const handleSubscriptionUpdated = async (
       updateUrl: subscriptionUpdated.update_url,
       cancelUrl: subscriptionUpdated.cancel_url,
     },
-    debugMetadata: {
-      ...existingUserPaymentData.debugMetadata,
-      alertId: subscriptionUpdated.alert_id,
-      eventTime: subscriptionUpdated.event_time,
-    },
+    alertIds: [
+      ...existingUserPaymentData.alertIds,
+      subscriptionUpdated.alert_id,
+    ],
   };
 
   const result = await db
@@ -74,41 +72,9 @@ export const handleSubscriptionUpdated = async (
     };
   }
 
-  // save old data to history
-  const history = await db
-    .collection<userPaymentDataArchive>(
-      COLLECTION_LMP_USER_PAYMENT_DATA_ARCHIVE
-    )
-    .insertOne({
-      userId: existingUserPaymentData.userId,
-      subscriptionId: existingUserPaymentData.subscription.id,
-      action: AlertName.SubscriptionUpdated,
-      history: {
-        status: existingUserPaymentData.subscription.status,
-        planId: existingUserPaymentData.subscription.planId,
-        endDate: existingUserPaymentData.subscription.endDate,
-        updateUrl: existingUserPaymentData.subscription.updateUrl,
-        cancelUrl: existingUserPaymentData.subscription.cancelUrl,
-      },
-      historyMetadata: {
-        alertId: existingUserPaymentData.debugMetadata.alertId,
-        eventTime: existingUserPaymentData.debugMetadata.eventTime,
-      },
-      debugMetadata: {
-        alertId: subscriptionUpdated.alert_id,
-        eventTime: subscriptionUpdated.event_time,
-      },
-    });
-
-  if (!history.insertedId) {
-    console.error(
-      `Could not insert user payment data history for subscription id ${subscriptionUpdated.subscription_id}`
-    );
+  if (subscriptionUpdated.status === PaddleSubscriptionStatus.Active) {
+    // TODO: send email to user with updated license key
   }
-
-  // TODO: send email to user
-
-  // TODO: Possibly generate a license key for the user and send it to them
 
   return {
     statusCode: 200,

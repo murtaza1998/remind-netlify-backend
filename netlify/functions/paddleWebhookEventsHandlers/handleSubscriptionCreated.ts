@@ -14,6 +14,25 @@ export const handleSubscriptionCreated = async (
   console.info(
     `Handling subscription created event for user ${subscriptionCreated.email} with subscription id ${subscriptionCreated.subscription_id} and alert id ${subscriptionCreated.alert_id}`
   );
+
+  const { passthrough: passthroughString } = subscriptionCreated;
+  let passthrough: userPaymentData["passthrough"];
+  try {
+    passthrough = JSON.parse(
+      passthroughString
+    ) as userPaymentData["passthrough"];
+  } catch (error) {
+    console.error(
+      `Failed to parse passthrough string ${passthroughString} into JSON`
+    );
+    return {
+      statusCode: 500,
+      error: {
+        message: "Failed to parse passthrough string into JSON",
+      },
+    };
+  }
+
   const db = await connectToDatabase(DB_LMP);
 
   const upd: Omit<userPaymentData, "_id"> = {
@@ -27,12 +46,10 @@ export const handleSubscriptionCreated = async (
       updateUrl: subscriptionCreated.update_url,
       cancelUrl: subscriptionCreated.cancel_url,
     },
+    passthrough,
     checkoutId: subscriptionCreated.checkout_id,
     marketingConsent: isPositive(subscriptionCreated.marketing_consent),
-    debugMetadata: {
-      alertId: subscriptionCreated.alert_id,
-      eventTime: subscriptionCreated.event_time,
-    },
+    alertIds: [subscriptionCreated.alert_id],
   };
 
   const result = await db
@@ -47,6 +64,8 @@ export const handleSubscriptionCreated = async (
       },
     };
   }
+
+  // TODO: send email to user
 
   return {
     statusCode: 200,

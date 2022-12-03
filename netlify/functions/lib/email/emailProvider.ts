@@ -2,11 +2,11 @@ import { createTransport } from "nodemailer";
 import { env } from "process";
 
 class GenericEmail {
-  SMTP_USERNAME: string;
-  SMTP_PASSWORD: string;
-  SMTP_HOST: string;
-  SMTP_PORT: number;
-  SMTP_FROM: string;
+  private SMTP_USERNAME: string;
+  private SMTP_PASSWORD: string;
+  private SMTP_HOST: string;
+  private SMTP_PORT: number;
+  private SMTP_FROM: string;
 
   constructor(
     smtpUsername: string,
@@ -26,6 +26,7 @@ class GenericEmail {
     const transporter = createTransport({
       host: this.SMTP_HOST,
       port: this.SMTP_PORT,
+      secure: true,
       auth: {
         user: this.SMTP_USERNAME,
         pass: this.SMTP_PASSWORD,

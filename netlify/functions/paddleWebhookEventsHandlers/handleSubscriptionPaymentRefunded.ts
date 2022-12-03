@@ -8,13 +8,12 @@ import { API_Response } from "../../definitions/API";
 import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
 import { subscriptionPaymentHistory } from "../../definitions/database/paddle/userPaymentHistory";
 import {
-  AlertName,
   PaymentStatus,
-  SubscriptionPaymentFailedRequest,
+  SubscriptionPaymentRefundedRequest,
 } from "../../definitions/paddle";
 
-export const handleSubscriptionPaymentFailed = async (
-  subscriptionPayFailed: SubscriptionPaymentFailedRequest
+export const handleSubscriptionPaymentRefunded = async (
+  subscriptionPayFailed: SubscriptionPaymentRefundedRequest
 ): Promise<API_Response> => {
   console.info(
     `Handling subscription payment failed event for subscription with id ${subscriptionPayFailed.subscription_id} and alert id ${subscriptionPayFailed.alert_id}`
@@ -42,54 +41,21 @@ export const handleSubscriptionPaymentFailed = async (
     };
   }
 
-  if (subscriptionPayFailed.next_retry_date) {
-    // we'll extend the user's subscription until the next retry date
-    const upd: Partial<userPaymentData> = {
-      subscription: {
-        ...existingUserPaymentData.subscription,
-        endDate: subscriptionPayFailed.next_retry_date,
-      },
-      alertIds: [
-        ...existingUserPaymentData.alertIds,
-        subscriptionPayFailed.alert_id,
-      ],
-    };
-
-    const result = await db
-      .collection<userPaymentData>(COLLECTION_LMP_USER_PAYMENT_DATA)
-      .updateOne({ _id: existingUserPaymentData._id }, { $set: upd });
-
-    if (result.modifiedCount !== 1) {
-      console.error(
-        `Could not update user payment data for subscription id ${subscriptionPayFailed.subscription_id} when handling subscription cancelled event`
-      );
-      return {
-        statusCode: 500,
-        error: {
-          message: `Could not update user payment data for subscription id ${subscriptionPayFailed.subscription_id} when handling subscription cancelled event`,
-        },
-      };
-    }
-
-    // TODO: send email to user about payment failure and that we'll extend their subscription until the next retry date
-    // TODO: also send new license key to user
-  } else {
-    // we'll cancel the user's subscription
-    // TODO: send email to user about payment failure and that we'll cancel their subscription
-  }
-
   // save payment history
   const paymentHistory: subscriptionPaymentHistory = {
+    status: PaymentStatus.Refund,
     subscriptionId: subscriptionPayFailed.subscription_id,
-    status: PaymentStatus.Error,
     createdAt: subscriptionPayFailed.event_time,
     subscriptionPaymentId: subscriptionPayFailed.subscription_payment_id,
     subscriptionPlanId: subscriptionPayFailed.subscription_plan_id,
     currency: subscriptionPayFailed.currency,
 
-    failedTransaction: {
-      attemptNumber: subscriptionPayFailed.attempt_number,
-      nextRetryDate: subscriptionPayFailed.next_retry_date,
+    refundedTransaction: {
+      refundReason: subscriptionPayFailed.refund_reason,
+      refundType: subscriptionPayFailed.refund_type,
+      amount: subscriptionPayFailed.gross_refund,
+      amountTax: subscriptionPayFailed.tax_refund,
+      paddleFee: subscriptionPayFailed.fee_refund,
     },
 
     debugMetadata: {
@@ -112,6 +78,8 @@ export const handleSubscriptionPaymentFailed = async (
       },
     };
   }
+
+  // TODO: send email to user
 
   return {
     statusCode: 200,

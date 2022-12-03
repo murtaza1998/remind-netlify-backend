@@ -1,7 +1,6 @@
 import { PaymentStatus } from "../../paddle";
 
-export type userPaymentHistory = {
-  userId: string;
+export type subscriptionPaymentHistory = {
   subscriptionId: string;
   createdAt: string;
   status: PaymentStatus;
@@ -25,12 +24,15 @@ export type userPaymentHistory = {
     instalments: string; // - how many installments the customer paid for (e.g. 1 for a one-time payment, 12 for a yearly subscription)
   };
   failedTransaction?: {
-    attemptNumber?: string; // - for failed payments, we store how often it was already retried
-    nextRetryDate?: string; // - we also store when the next retry will take place
+    attemptNumber: string; // - for failed payments, we store how often it was already retried
+    nextRetryDate: string; // - we also store when the next retry will take place
   };
   refundedTransaction?: {
-    refundReason?: string; // - for refunds we store the reason
-    refundType?: string; // - and the type we get from Paddle
+    refundReason: string; // - for refunds we store the reason
+    refundType: string; // - and the type we get from Paddle
+    amount: string; // - the amount the customer paid
+    amountTax: string; // - the amount of taxes which were paid
+    paddleFee: string; // - how much Paddle earned for the payment
   };
 
   debugMetadata: {
