@@ -5,7 +5,8 @@ import { getZohoContactMailer } from "./lib/email/emailProvider";
 // time to get initialized, I'm going to try to initialize it here
 // Possibly need to call this routinely to keep it alive?
 const handler: Handler = async (event, context) => {
-  console.debug(`Starting to send email at ${new Date()}`);
+  const startTimer = Date.now();
+  console.debug(`Starting to send email at ${startTimer}`);
 
   await getZohoContactMailer().sendEmail(
     "murtaza98.test@gmail.com",
@@ -13,7 +14,11 @@ const handler: Handler = async (event, context) => {
     "This is a test email"
   );
 
-  console.debug(`Finished sending email at ${new Date()}`);
+  console.debug(
+    `Finished sending email at ${Date.now()}. Took ${
+      Date.now() - startTimer
+    } ms`
+  );
 
   return {
     statusCode: 200,
