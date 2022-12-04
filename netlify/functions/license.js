@@ -1,7 +1,7 @@
 const MongoClient = require("mongodb").MongoClient;
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-const { ENV_VARIABLES } = require("./lib/configs/envVariables");
+import { ENV_VARIABLES } from "./lib/configs/envVariables";
 
 // Database configurations
 const MONGODB_URI = process.env.MONGODB_URI;
