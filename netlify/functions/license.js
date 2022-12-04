@@ -93,7 +93,7 @@ const sendEmail = async (email, workspaceAddress, license, licenseExpiry) => {
   console.log(`Email sent: ${JSON.stringify(result)}`);
 };
 
-module.exports.handler = async (event, context) => {
+exports.handler = async (event, context) => {
   // otherwise the connection will never complete, since
   // we keep the DB connection alive
   context.callbackWaitsForEmptyEventLoop = false;
