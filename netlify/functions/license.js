@@ -93,7 +93,7 @@ const sendEmail = async (email, workspaceAddress, license, licenseExpiry) => {
   console.log(`Email sent: ${JSON.stringify(result)}`);
 };
 
-exports.handler = async (event, context) => {
+const handler = async (event, context) => {
   // otherwise the connection will never complete, since
   // we keep the DB connection alive
   context.callbackWaitsForEmptyEventLoop = false;
@@ -144,3 +144,5 @@ exports.handler = async (event, context) => {
     headers: corsHeaders,
   };
 };
+
+export { handler };
