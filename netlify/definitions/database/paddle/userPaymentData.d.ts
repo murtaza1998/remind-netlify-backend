@@ -1,4 +1,4 @@
-import { PaddleSubscriptionStatus } from "../../paddle";
+import { PaddlePassthrough, PaddleSubscriptionStatus } from "../../paddle";
 
 export type userPaymentData = {
   userId: string;
@@ -11,12 +11,8 @@ export type userPaymentData = {
     updateUrl: string;
     cancelUrl: string;
   };
-  passthrough: paddlePassthrough;
+  passthrough: PaddlePassthrough;
   checkoutId: string;
   marketingConsent: boolean;
   alertIds: string[];
-};
-
-export type paddlePassthrough = {
-  workspaceAddress: string;
 };

@@ -1,5 +1,5 @@
 export interface PaddlePassthrough {
-  userId: string; // the id of the user in our supabase database
+  workspaceAddress: string; // workspace address where the reminder app is installed
 }
 
 export enum PaddleSubscriptionStatus {
