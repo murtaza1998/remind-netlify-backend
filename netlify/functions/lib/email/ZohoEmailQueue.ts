@@ -2,10 +2,10 @@
 // and paddle requires response within 10 seconds
 
 import { Db, WithoutId } from "mongodb";
-import { COLLECTION_LMP_EMAIL_QUEUE } from "../../../database";
 import { IEmailDbRecord } from "../../../definitions/database/email";
 import { generateRandomId } from "./utils";
 import axios, { AxiosError } from "axios";
+import { COLLECTION_LMP_EMAIL_QUEUE } from "../database";
 
 class ZohoEmailQueueClass {
   async sendEmail(

@@ -1,6 +1,6 @@
 const MongoClient = require("mongodb").MongoClient;
 const nodemailer = require("nodemailer");
-import { connectToLMPDatabase } from "../database";
+import { connectToLMPDatabase } from "./lib/database";
 import { ENV_VARIABLES } from "./lib/configs/envVariables";
 import { generateLicense } from "./lib/license/generateLicense";
 

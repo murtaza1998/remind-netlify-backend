@@ -1,5 +1,8 @@
 import { Handler } from "@netlify/functions";
-import { COLLECTION_LMP_EMAIL_QUEUE, connectToLMPDatabase } from "../database";
+import {
+  COLLECTION_LMP_EMAIL_QUEUE,
+  connectToLMPDatabase,
+} from "./lib/database";
 import { IEmailDbRecord } from "../definitions/database/email";
 import { ENV_VARIABLES } from "./lib/configs/envVariables";
 import { getZohoContactMailer } from "./lib/email/emailProvider";

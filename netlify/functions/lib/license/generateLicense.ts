@@ -3,7 +3,7 @@ import { privateEncrypt } from "crypto";
 import { IReminderAppLicense } from "../../../definitions/license";
 import { Db } from "mongodb";
 import { ILargeSecrets } from "../../../definitions/database/largeSecrets";
-import { COLLECTION_LARGE_SECRETS } from "../../../database";
+import { COLLECTION_LARGE_SECRETS } from "../database";
 
 type Props = {
   db: Db;

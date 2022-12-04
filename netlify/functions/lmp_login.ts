@@ -1,9 +1,9 @@
 import { Handler } from "@netlify/functions";
-import { COLLECTION_LMP_USERS, connectToLMPDatabase } from "../database";
 import { API_Response } from "../definitions/API";
 import { lmpUser } from "../definitions/database/lmpUser";
-import { verifyHash } from "../hash";
-import { createJwt } from "../jwt";
+import { verifyHash } from "./lib/hash";
+import { createJwt } from "./lib/jwt";
+import { connectToLMPDatabase, COLLECTION_LMP_USERS } from "./lib/database";
 
 type API_PAYLOAD = {
   email: string;

@@ -10,14 +10,14 @@ import {
   SubscriptionPaymentSucceededRequest,
   SubscriptionUpdatedRequest,
 } from "../definitions/paddle";
-import { isPaddleWebhookValid } from "../paddleWebhookVerification";
+import { isPaddleWebhookValid } from "./lib/paddle/paddleWebhookVerification";
 import { parse } from "querystring";
 import { handleSubscriptionCreated } from "./paddleWebhookEventsHandlers/handleSubscriptionCreated";
 import { handleSubscriptionUpdated } from "./paddleWebhookEventsHandlers/handleSubscriptionUpdated";
 import { handleSubscriptionCancelled } from "./paddleWebhookEventsHandlers/handleSubscriptionCancelled";
 import { handleSubscriptionPaymentSucceeded } from "./paddleWebhookEventsHandlers/handleSubscriptionPaymentSucceeded";
 import { handleSubscriptionPaymentFailed } from "./paddleWebhookEventsHandlers/handleSubscriptionPaymentFailed";
-import { connectToLMPDatabase } from "../database";
+import { connectToLMPDatabase } from "./lib/database";
 import { handleSubscriptionPaymentRefunded } from "./paddleWebhookEventsHandlers/handleSubscriptionPaymentRefunded";
 import { extractNetlifySiteFromContext } from "./lib/netlify/extractNetlifyUrl";
 

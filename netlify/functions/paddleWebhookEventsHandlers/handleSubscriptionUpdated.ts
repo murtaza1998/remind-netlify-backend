@@ -1,5 +1,5 @@
 import { Db } from "mongodb";
-import { COLLECTION_LMP_USER_PAYMENT_DATA } from "../../database";
+import { COLLECTION_LMP_USER_PAYMENT_DATA } from "../lib/database";
 import { API_Response } from "../../definitions/API";
 import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
 import {

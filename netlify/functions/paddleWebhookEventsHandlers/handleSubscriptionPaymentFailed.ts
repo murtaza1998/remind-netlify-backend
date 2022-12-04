@@ -1,8 +1,8 @@
 import { Db } from "mongodb";
 import {
-  COLLECTION_LMP_USER_PAYMENT_DATA,
   COLLECTION_LMP_SUBSCRIPTION_PAYMENT_HISTORY,
-} from "../../database";
+  COLLECTION_LMP_USER_PAYMENT_DATA,
+} from "../lib/database";
 import { API_Response } from "../../definitions/API";
 import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
 import { subscriptionPaymentHistory } from "../../definitions/database/paddle/userPaymentHistory";
