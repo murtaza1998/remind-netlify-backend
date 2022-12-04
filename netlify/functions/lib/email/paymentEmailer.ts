@@ -2,6 +2,8 @@ import { userPaymentData } from "../../../definitions/database/paddle/userPaymen
 import {
   activeSubsUpdatedTemplateProps,
   newSubAddedTemplateProps,
+  paymentFailedWithinGracePeriodTemplateProps,
+  paymentFailedWithSubsPausedTemplateProps,
   subRenewalSuccessTemplateProps,
   subsCancelEmailTemplateProps,
 } from "../../../definitions/email";
@@ -16,6 +18,14 @@ import {
   newSubAddedEmailTemplateBody,
   newSubAddedEmailTemplateSubject,
 } from "./templates/newSubAddedEmailTemplate";
+import {
+  paymentFailedWithinGracePeriodBody,
+  paymentFailedWithinGracePeriodSubject,
+} from "./templates/paymentFailedWithinGracePeriod";
+import {
+  paymentFailedWithSubsPausedBody,
+  paymentFailedWithSubsPausedSubject,
+} from "./templates/paymentFailedWithSubsPaused";
 import {
   subRenewalSuccessEmailTemplateBody,
   subRenewalSuccessEmailTemplateSubject,
@@ -213,6 +223,83 @@ class PaymentEmailerClass {
         `Failed to send subscription cancelled email to ${to}`,
         error
       );
+    }
+  }
+
+  async sendPaymentFailedEmailWithRetry({
+    to,
+    subscription: { planId, endDate },
+    passthrough: { workspaceAddress },
+  }: {
+    to: string;
+    subscription: { planId: string; endDate: string };
+    passthrough: { workspaceAddress: string };
+  }): Promise<void> {
+    console.info(`Sending payment failed email to ${to} at ${new Date()}`);
+
+    const planDuration = PaddlePlan.getPlanName(planId);
+
+    const license = generateLicense({
+      workspaceAddress,
+      expiry: new Date(endDate),
+    });
+
+    const emailBody =
+      substituteEmailTemplateParams<paymentFailedWithinGracePeriodTemplateProps>(
+        paymentFailedWithinGracePeriodBody,
+        {
+          license,
+          licenseExpiration: endDate,
+          workspaceAddress,
+          nextBillDate: endDate,
+          planDuration,
+        }
+      );
+
+    try {
+      await getZohoContactMailer().sendEmail(
+        to,
+        paymentFailedWithinGracePeriodSubject,
+        emailBody
+      );
+
+      console.info(`Sent payment failed email to ${to} at ${new Date()}`);
+    } catch (error) {
+      // Let's not fail the whole request if the email fails
+      console.error(`Failed to send payment failed email to ${to}`, error);
+    }
+  }
+
+  async sendPaymentFailedEmailAndSubsPaused({
+    to,
+    subscription: { planId },
+  }: {
+    to: string;
+    subscription: { planId: string };
+  }): Promise<void> {
+    console.info(`Sending payment failed email to ${to} at ${new Date()}`);
+
+    const planDuration = PaddlePlan.getPlanName(planId);
+
+    const emailBody =
+      substituteEmailTemplateParams<paymentFailedWithSubsPausedTemplateProps>(
+        paymentFailedWithSubsPausedBody,
+        {
+          planDuration,
+        }
+      );
+
+    try {
+      await getZohoContactMailer().sendEmail(
+        to,
+        paymentFailedWithSubsPausedSubject,
+        emailBody
+      );
+
+      console.info(`Sent payment failed email to ${to} at ${new Date()}`);
+    } catch (error) {
+      // Let's not fail the whole request if the email fails
+      console.error(`Failed to send payment failed email to ${to}`, error);
     }
   }
 }

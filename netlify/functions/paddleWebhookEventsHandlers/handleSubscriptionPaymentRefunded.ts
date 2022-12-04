@@ -79,7 +79,8 @@ export const handleSubscriptionPaymentRefunded = async (
     };
   }
 
-  // TODO: send email to user
+  // TODO: Need to check if we need to send any email to user here
+  // because likely paddle will send email to user about this
 
   return {
     statusCode: 200,
