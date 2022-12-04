@@ -7,6 +7,7 @@ import { PaymentEmailer } from "../lib/email/paymentEmailer";
 
 export const handleSubscriptionCancelled = async (
   db: Db,
+  siteUrl: string,
   subscriptionCancelled: SubscriptionCancelledRequest
 ): Promise<API_Response> => {
   console.info(
@@ -63,6 +64,8 @@ export const handleSubscriptionCancelled = async (
   }
 
   await PaymentEmailer.sendSubscriptionCancelledEmail({
+    db,
+    siteUrl,
     to: existingUserPaymentData.email,
     subscription: {
       planId: existingUserPaymentData.subscription.planId,

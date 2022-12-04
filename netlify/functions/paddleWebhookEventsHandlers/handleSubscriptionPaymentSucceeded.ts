@@ -16,6 +16,7 @@ import { isPositive } from "./utils";
 
 export const handleSubscriptionPaymentSucceeded = async (
   db: Db,
+  siteUrl: string,
   subscriptionSucceeded: SubscriptionPaymentSucceededRequest
 ): Promise<API_Response> => {
   console.info(
@@ -117,6 +118,8 @@ export const handleSubscriptionPaymentSucceeded = async (
 
     if (latestSubscriptionStatus === PaddleSubscriptionStatus.Active) {
       await PaymentEmailer.sendSubscriptionRenewedEmail({
+        db,
+        siteUrl,
         to: existingUserPaymentData.email,
         subscription: {
           planId: existingUserPaymentData.subscription.planId,

@@ -19,6 +19,7 @@ import { handleSubscriptionPaymentSucceeded } from "./paddleWebhookEventsHandler
 import { handleSubscriptionPaymentFailed } from "./paddleWebhookEventsHandlers/handleSubscriptionPaymentFailed";
 import { connectToLMPDatabase } from "../database";
 import { handleSubscriptionPaymentRefunded } from "./paddleWebhookEventsHandlers/handleSubscriptionPaymentRefunded";
+import { extractNetlifySiteFromContext } from "./lib/netlify/extractNetlifyUrl";
 
 /**
  *
@@ -73,21 +74,35 @@ const handler: Handler = async (event, context) => {
 
   const db = await connectToLMPDatabase();
 
+  const siteUrl = extractNetlifySiteFromContext(context);
+
   let response: API_Response;
   switch (parsedBody.alert_name) {
     case AlertName.SubscriptionCreated: {
       const subscriptionCreated = parsedBody as SubscriptionCreatedRequest;
-      response = await handleSubscriptionCreated(db, subscriptionCreated);
+      response = await handleSubscriptionCreated(
+        db,
+        siteUrl,
+        subscriptionCreated
+      );
       break;
     }
     case AlertName.SubscriptionUpdated: {
       const subscriptionUpdated = parsedBody as SubscriptionUpdatedRequest;
-      response = await handleSubscriptionUpdated(db, subscriptionUpdated);
+      response = await handleSubscriptionUpdated(
+        db,
+        siteUrl,
+        subscriptionUpdated
+      );
       break;
     }
     case AlertName.SubscriptionCancelled: {
       const subscriptionCancelled = parsedBody as SubscriptionCancelledRequest;
-      response = await handleSubscriptionCancelled(db, subscriptionCancelled);
+      response = await handleSubscriptionCancelled(
+        db,
+        siteUrl,
+        subscriptionCancelled
+      );
       break;
     }
     case AlertName.SubscriptionPaymentSucceeded: {
@@ -95,6 +110,7 @@ const handler: Handler = async (event, context) => {
         parsedBody as SubscriptionPaymentSucceededRequest;
       response = await handleSubscriptionPaymentSucceeded(
         db,
+        siteUrl,
         subscriptionPaymentSucceeded
       );
       break;
@@ -104,6 +120,7 @@ const handler: Handler = async (event, context) => {
         parsedBody as SubscriptionPaymentFailedRequest;
       response = await handleSubscriptionPaymentFailed(
         db,
+        siteUrl,
         subscriptionPaymentFailed
       );
       break;

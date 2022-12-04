@@ -11,6 +11,7 @@ export const COLLECTION_LMP_USERS = "users";
 export const COLLECTION_LMP_USER_PAYMENT_DATA = "userPaymentData";
 export const COLLECTION_LMP_SUBSCRIPTION_PAYMENT_HISTORY =
   "subscriptionPaymentHistory";
+export const COLLECTION_LMP_EMAIL_QUEUE = "emailQueue";
 
 let cachedDb: Db | null = null;
 

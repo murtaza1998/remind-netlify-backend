@@ -8,6 +8,7 @@ import { isPositive } from "./utils";
 
 export const handleSubscriptionCreated = async (
   db: Db,
+  siteUrl: string,
   subscriptionCreated: SubscriptionCreatedRequest
 ): Promise<API_Response> => {
   console.info(
@@ -21,6 +22,9 @@ export const handleSubscriptionCreated = async (
       passthroughString
     ) as userPaymentData["passthrough"];
   } catch (error) {
+    // TODO: need to think about this. Maybe a user is not using website client to subscribe,
+    // but using paddle checkout page directly. In that case, we don't have a passthrough.
+    // But we still need to handle this subscription created event. So we need to think about how to handle this case.
     console.error(
       `Failed to parse passthrough string ${passthroughString} into JSON`
     );
@@ -68,6 +72,8 @@ export const handleSubscriptionCreated = async (
 
   if (subscriptionCreated.status === "active") {
     await PaymentEmailer.sendNewSubscriptionCreatedEmail(
+      db,
+      siteUrl,
       subscriptionCreated.email,
       upd
     );

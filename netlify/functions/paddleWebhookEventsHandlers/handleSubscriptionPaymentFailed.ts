@@ -15,6 +15,7 @@ import { PaymentEmailer } from "../lib/email/paymentEmailer";
 
 export const handleSubscriptionPaymentFailed = async (
   db: Db,
+  siteUrl: string,
   subscriptionPayFailed: SubscriptionPaymentFailedRequest
 ): Promise<API_Response> => {
   console.info(
@@ -81,6 +82,8 @@ export const handleSubscriptionPaymentFailed = async (
       ].includes(subscriptionPayFailed.status)
     ) {
       await PaymentEmailer.sendPaymentFailedEmailWithRetry({
+        db,
+        siteUrl,
         to: existingUserPaymentData.email,
         subscription: {
           planId: existingUserPaymentData.subscription.planId,
@@ -94,6 +97,8 @@ export const handleSubscriptionPaymentFailed = async (
   } else {
     // send email to user about payment failure and that we'll pause their subscription
     await PaymentEmailer.sendPaymentFailedEmailAndSubsPaused({
+      db,
+      siteUrl,
       to: existingUserPaymentData.email,
       subscription: {
         planId: existingUserPaymentData.subscription.planId,

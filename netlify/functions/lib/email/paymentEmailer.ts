@@ -1,3 +1,4 @@
+import { Db } from "mongodb";
 import { userPaymentData } from "../../../definitions/database/paddle/userPaymentData";
 import {
   activeSubsUpdatedTemplateProps,
@@ -7,9 +8,9 @@ import {
   subRenewalSuccessTemplateProps,
   subsCancelEmailTemplateProps,
 } from "../../../definitions/email";
+import { ENV_VARIABLES } from "../configs/envVariables";
 import { generateLicense } from "../license/generateLicense";
 import { PaddlePlan } from "../paddle/plan";
-import { getZohoContactMailer } from "./emailProvider";
 import {
   activeSubsUpdatedEmailTemplateBody,
   activeSubsUpdatedEmailTemplateSubject,
@@ -35,9 +36,12 @@ import {
   subsCancelEmailTemplateSubject,
 } from "./templates/subsCancelEmailTemplate";
 import { substituteEmailTemplateParams } from "./utils";
+import { ZohoEmailQueue } from "./ZohoEmailQueue";
 
 class PaymentEmailerClass {
   async sendNewSubscriptionCreatedEmail(
+    db: Db,
+    siteUrl: string,
     to: string,
     userPaymentData: userPaymentData
   ): Promise<void> {
@@ -68,11 +72,12 @@ class PaymentEmailerClass {
     console.debug(`Sending email to ${to} at ${new Date()}`);
 
     try {
-      await getZohoContactMailer().sendEmail(
+      await ZohoEmailQueue.sendEmail(db, siteUrl, {
+        from: ENV_VARIABLES.CONTACT_APPSFORCHAT_FROM_MAIL,
         to,
-        newSubAddedEmailTemplateSubject,
-        emailBody
-      );
+        subject: newSubAddedEmailTemplateSubject,
+        html: emailBody,
+      });
       console.info(
         `Sent new subscription created email to ${to} at ${new Date()}`
       );
@@ -83,12 +88,16 @@ class PaymentEmailerClass {
   }
 
   async sendSubscriptionRenewedEmail({
+    db,
+    siteUrl,
     to,
     subscription: { planId, endDate },
     passthrough: { workspaceAddress },
     renewalDate,
     renewalReceipt,
   }: {
+    db: Db;
+    siteUrl: string;
     to: string;
     subscription: { planId: string; endDate: string };
     passthrough: { workspaceAddress: string };
@@ -120,11 +129,12 @@ class PaymentEmailerClass {
     console.debug(`Sending email to ${to} at ${new Date()}`);
 
     try {
-      await getZohoContactMailer().sendEmail(
+      await ZohoEmailQueue.sendEmail(db, siteUrl, {
+        from: ENV_VARIABLES.CONTACT_APPSFORCHAT_FROM_MAIL,
         to,
-        subRenewalSuccessEmailTemplateSubject,
-        emailBody
-      );
+        subject: subRenewalSuccessEmailTemplateSubject,
+        html: emailBody,
+      });
       console.info(`Sent subscription renewed email to ${to} at ${new Date()}`);
     } catch (error) {
       // Let's not fail the whole request if the email fails
@@ -136,11 +146,15 @@ class PaymentEmailerClass {
   }
 
   async activeSubscriptionsUpdatedEmail({
+    db,
+    siteUrl,
     to,
     subscription: { planId, endDate },
     passthrough: { workspaceAddress },
     updatedDate,
   }: {
+    db: Db;
+    siteUrl: string;
     to: string;
     subscription: { planId: string; endDate: string };
     passthrough: { workspaceAddress: string };
@@ -170,11 +184,12 @@ class PaymentEmailerClass {
     console.debug(`Sending email to ${to} at ${new Date()}`);
 
     try {
-      await getZohoContactMailer().sendEmail(
+      await ZohoEmailQueue.sendEmail(db, siteUrl, {
+        from: ENV_VARIABLES.CONTACT_APPSFORCHAT_FROM_MAIL,
         to,
-        activeSubsUpdatedEmailTemplateSubject,
-        emailBody
-      );
+        subject: activeSubsUpdatedEmailTemplateSubject,
+        html: emailBody,
+      });
       console.info(`Sent subscription updated email to ${to} at ${new Date()}`);
     } catch (error) {
       // Let's not fail the whole request if the email fails
@@ -186,9 +201,13 @@ class PaymentEmailerClass {
   }
 
   async sendSubscriptionCancelledEmail({
+    db,
+    siteUrl,
     to,
     subscription: { planId, endDate },
   }: {
+    db: Db;
+    siteUrl: string;
     to: string;
     subscription: { planId: string; endDate: string };
   }): Promise<void> {
@@ -208,11 +227,12 @@ class PaymentEmailerClass {
       );
 
     try {
-      await getZohoContactMailer().sendEmail(
+      await ZohoEmailQueue.sendEmail(db, siteUrl, {
+        from: ENV_VARIABLES.CONTACT_APPSFORCHAT_FROM_MAIL,
         to,
-        subsCancelEmailTemplateSubject,
-        emailBody
-      );
+        subject: subsCancelEmailTemplateSubject,
+        html: emailBody,
+      });
 
       console.info(
         `Sent subscription cancelled email to ${to} at ${new Date()}`
@@ -227,10 +247,14 @@ class PaymentEmailerClass {
   }
 
   async sendPaymentFailedEmailWithRetry({
+    db,
+    siteUrl,
     to,
     subscription: { planId, endDate },
     passthrough: { workspaceAddress },
   }: {
+    db: Db;
+    siteUrl: string;
     to: string;
     subscription: { planId: string; endDate: string };
     passthrough: { workspaceAddress: string };
@@ -257,11 +281,12 @@ class PaymentEmailerClass {
       );
 
     try {
-      await getZohoContactMailer().sendEmail(
+      await ZohoEmailQueue.sendEmail(db, siteUrl, {
+        from: ENV_VARIABLES.CONTACT_APPSFORCHAT_FROM_MAIL,
         to,
-        paymentFailedWithinGracePeriodSubject,
-        emailBody
-      );
+        subject: paymentFailedWithinGracePeriodSubject,
+        html: emailBody,
+      });
 
       console.info(`Sent payment failed email to ${to} at ${new Date()}`);
     } catch (error) {
@@ -271,9 +296,13 @@ class PaymentEmailerClass {
   }
 
   async sendPaymentFailedEmailAndSubsPaused({
+    db,
+    siteUrl,
     to,
     subscription: { planId },
   }: {
+    db: Db;
+    siteUrl: string;
     to: string;
     subscription: { planId: string };
   }): Promise<void> {
@@ -290,11 +319,12 @@ class PaymentEmailerClass {
       );
 
     try {
-      await getZohoContactMailer().sendEmail(
+      await ZohoEmailQueue.sendEmail(db, siteUrl, {
+        from: ENV_VARIABLES.CONTACT_APPSFORCHAT_FROM_MAIL,
         to,
-        paymentFailedWithSubsPausedSubject,
-        emailBody
-      );
+        subject: paymentFailedWithSubsPausedSubject,
+        html: emailBody,
+      });
 
       console.info(`Sent payment failed email to ${to} at ${new Date()}`);
     } catch (error) {

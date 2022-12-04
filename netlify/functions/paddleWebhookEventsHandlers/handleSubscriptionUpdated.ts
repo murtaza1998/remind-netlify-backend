@@ -10,6 +10,7 @@ import { PaymentEmailer } from "../lib/email/paymentEmailer";
 
 export const handleSubscriptionUpdated = async (
   db: Db,
+  siteUrl: string,
   subscriptionUpdated: SubscriptionUpdatedRequest
 ): Promise<API_Response> => {
   console.info(
@@ -71,6 +72,8 @@ export const handleSubscriptionUpdated = async (
   if (subscriptionUpdated.status === PaddleSubscriptionStatus.Active) {
     // send email to user
     await PaymentEmailer.activeSubscriptionsUpdatedEmail({
+      db,
+      siteUrl,
       to: existingUserPaymentData.email,
       subscription: {
         planId: subscriptionUpdated.subscription_plan_id,
