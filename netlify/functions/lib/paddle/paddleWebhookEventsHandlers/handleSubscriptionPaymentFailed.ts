@@ -2,16 +2,16 @@ import { Db } from "mongodb";
 import {
   COLLECTION_LMP_SUBSCRIPTION_PAYMENT_HISTORY,
   COLLECTION_LMP_USER_PAYMENT_DATA,
-} from "../lib/database";
-import { API_Response } from "../../definitions/API";
-import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
-import { subscriptionPaymentHistory } from "../../definitions/database/paddle/userPaymentHistory";
+} from "../../database";
+import { API_Response } from "../../../../definitions/API";
+import { userPaymentData } from "../../../../definitions/database/paddle/userPaymentData";
+import { subscriptionPaymentHistory } from "../../../../definitions/database/paddle/userPaymentHistory";
 import {
   PaddleSubscriptionStatus,
   PaymentStatus,
   SubscriptionPaymentFailedRequest,
-} from "../../definitions/paddle";
-import { PaymentEmailer } from "../lib/email/paymentEmailer";
+} from "../../../../definitions/paddle";
+import { PaymentEmailer } from "../../email/paymentEmailer";
 
 export const handleSubscriptionPaymentFailed = async (
   db: Db,

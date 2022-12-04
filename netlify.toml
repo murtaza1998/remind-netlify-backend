@@ -1,6 +1,10 @@
 [build]
   functions = "netlify/functions/"
 
+# Include all files in all functions
+[functions]
+  included_files = ["netlify/functions/lib/**"]
+
 [[headers]]
   # Define which paths this specific [[headers]] block will cover.
   for = "/*"

@@ -1,9 +1,9 @@
 import { Db } from "mongodb";
-import { COLLECTION_LMP_USER_PAYMENT_DATA } from "../lib/database";
-import { API_Response } from "../../definitions/API";
-import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
-import { SubscriptionCreatedRequest } from "../../definitions/paddle";
-import { PaymentEmailer } from "../lib/email/paymentEmailer";
+import { COLLECTION_LMP_USER_PAYMENT_DATA } from "../../database";
+import { API_Response } from "../../../../definitions/API";
+import { userPaymentData } from "../../../../definitions/database/paddle/userPaymentData";
+import { SubscriptionCreatedRequest } from "../../../../definitions/paddle";
+import { PaymentEmailer } from "../../email/paymentEmailer";
 import { isPositive } from "./utils";
 
 export const handleSubscriptionCreated = async (

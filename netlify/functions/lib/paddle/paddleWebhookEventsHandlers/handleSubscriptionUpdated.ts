@@ -1,12 +1,12 @@
 import { Db } from "mongodb";
-import { COLLECTION_LMP_USER_PAYMENT_DATA } from "../lib/database";
-import { API_Response } from "../../definitions/API";
-import { userPaymentData } from "../../definitions/database/paddle/userPaymentData";
+import { COLLECTION_LMP_USER_PAYMENT_DATA } from "../../database";
+import { API_Response } from "../../../../definitions/API";
+import { userPaymentData } from "../../../../definitions/database/paddle/userPaymentData";
 import {
   PaddleSubscriptionStatus,
   SubscriptionUpdatedRequest,
-} from "../../definitions/paddle";
-import { PaymentEmailer } from "../lib/email/paymentEmailer";
+} from "../../../../definitions/paddle";
+import { PaymentEmailer } from "../../email/paymentEmailer";
 
 export const handleSubscriptionUpdated = async (
   db: Db,

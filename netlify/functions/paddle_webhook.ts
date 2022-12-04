@@ -12,13 +12,13 @@ import {
 } from "../definitions/paddle";
 import { isPaddleWebhookValid } from "./lib/paddle/paddleWebhookVerification";
 import { parse } from "querystring";
-import { handleSubscriptionCreated } from "./paddleWebhookEventsHandlers/handleSubscriptionCreated";
-import { handleSubscriptionUpdated } from "./paddleWebhookEventsHandlers/handleSubscriptionUpdated";
-import { handleSubscriptionCancelled } from "./paddleWebhookEventsHandlers/handleSubscriptionCancelled";
-import { handleSubscriptionPaymentSucceeded } from "./paddleWebhookEventsHandlers/handleSubscriptionPaymentSucceeded";
-import { handleSubscriptionPaymentFailed } from "./paddleWebhookEventsHandlers/handleSubscriptionPaymentFailed";
+import { handleSubscriptionCreated } from "./lib/paddle/paddleWebhookEventsHandlers/handleSubscriptionCreated";
+import { handleSubscriptionUpdated } from "./lib/paddle/paddleWebhookEventsHandlers/handleSubscriptionUpdated";
+import { handleSubscriptionCancelled } from "./lib/paddle/paddleWebhookEventsHandlers/handleSubscriptionCancelled";
+import { handleSubscriptionPaymentSucceeded } from "./lib/paddle/paddleWebhookEventsHandlers/handleSubscriptionPaymentSucceeded";
+import { handleSubscriptionPaymentFailed } from "./lib/paddle/paddleWebhookEventsHandlers/handleSubscriptionPaymentFailed";
 import { connectToLMPDatabase } from "./lib/database";
-import { handleSubscriptionPaymentRefunded } from "./paddleWebhookEventsHandlers/handleSubscriptionPaymentRefunded";
+import { handleSubscriptionPaymentRefunded } from "./lib/paddle/paddleWebhookEventsHandlers/handleSubscriptionPaymentRefunded";
 import { extractNetlifySiteFromContext } from "./lib/netlify/extractNetlifyUrl";
 
 /**
