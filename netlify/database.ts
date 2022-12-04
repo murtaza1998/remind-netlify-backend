@@ -1,12 +1,12 @@
 import { Db, MongoClient } from "mongodb";
-import { ENV_VARIABLES } from "./functions/lib/configs/envVariables";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
 // name of database
-export const DB_LMP = ENV_VARIABLES.DB_LMP;
+export const DB_LMP = process.env.DB_LMP;
 
 // name of collections
+export const COLLECTION_LARGE_SECRETS = "largeSecrets";
 export const COLLECTION_LMP_USERS = "users";
 export const COLLECTION_LMP_USER_PAYMENT_DATA = "userPaymentData";
 export const COLLECTION_LMP_SUBSCRIPTION_PAYMENT_HISTORY =

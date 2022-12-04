@@ -1,22 +1,41 @@
 import { env } from "process";
 import { privateEncrypt } from "crypto";
 import { IReminderAppLicense } from "../../../definitions/license";
+import { Db } from "mongodb";
+import { ILargeSecrets } from "../../../definitions/database/largeSecrets";
+import { COLLECTION_LARGE_SECRETS } from "../../../database";
 
 type Props = {
+  db: Db;
   workspaceAddress: string;
   expiry: Date;
 };
 
-export const generateLicense = ({ workspaceAddress, expiry }: Props) => {
+export const generateLicense = async ({
+  workspaceAddress,
+  expiry,
+  db,
+}: Props) => {
   console.info(
     `Generating license for workspace address: ${workspaceAddress} with expiry: ${expiry}`
   );
 
-  if (!env.PRIVATE_KEY || !env.PRIVATE_KEY_PASSPHRASE) {
-    throw new Error("Private key or passphrase not set");
+  if (!env.PRIVATE_KEY_PASSPHRASE) {
+    throw new Error("private key passphrase not set");
   }
 
-  const { PRIVATE_KEY, PRIVATE_KEY_PASSPHRASE } = env;
+  const dbRecord = await db
+    .collection<ILargeSecrets>(COLLECTION_LARGE_SECRETS)
+    .findOne({
+      key: "license_private_key",
+    });
+  if (!dbRecord) {
+    throw new Error("Unable to find license private key");
+  }
+
+  const { PRIVATE_KEY_PASSPHRASE } = env;
+
+  const PRIVATE_KEY = dbRecord.value;
 
   const licenseData: IReminderAppLicense = {
     schemaVersion: 2,

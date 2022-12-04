@@ -1,16 +1,13 @@
 const MongoClient = require("mongodb").MongoClient;
-const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+import { connectToLMPDatabase } from "../database";
 import { ENV_VARIABLES } from "./lib/configs/envVariables";
+import { generateLicense } from "./lib/license/generateLicense";
 
 // Database configurations
 const MONGODB_URI = process.env.MONGODB_URI;
 const DB_NAME = "remind-website";
 const LICENSE_COLLECTION = "license";
-
-// private key for the server
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
-const PRIVATE_KEY_PASSPHRASE = process.env.PRIVATE_KEY_PASSPHRASE;
 
 // email configuration
 const MAIL_SENDER = ENV_VARIABLES.MAIL_SENDER;
@@ -32,10 +29,6 @@ const connectToDatabase = async (uri) => {
   return cachedDb;
 };
 
-function addMinutes(date, minutes) {
-  return new Date(date.getTime() + minutes * 60000);
-}
-
 const saveUserData = async (db, { email, workspaceAddress, license }) => {
   console.log(
     `Saving license for email: ${email} and workspace address: ${workspaceAddress}`
@@ -49,35 +42,6 @@ const saveUserData = async (db, { email, workspaceAddress, license }) => {
       createdBy: "netlify-functions",
     },
   ]);
-};
-
-const generateLicense = (data) => {
-  console.log(
-    `Generating license for email: ${data.email} and workspace address: ${data.workspaceAddress}`
-  );
-
-  const { workspaceAddress } = data;
-  // 30 days in future
-  // const expiry = addMinutes(new Date(), 60*24*30);
-  const expiry = new Date("12-31-2022");
-  const licenseData = {
-    url: workspaceAddress,
-    expiry,
-  };
-
-  const license = crypto
-    .privateEncrypt(
-      {
-        key: Buffer.from(PRIVATE_KEY, "base64"),
-        passphrase: PRIVATE_KEY_PASSPHRASE,
-      },
-      Buffer.from(JSON.stringify(licenseData), "utf8")
-    )
-    .toString("base64");
-
-  console.log("License generated: " + license);
-
-  return { license, expiry };
 };
 
 const sendEmail = async (email, workspaceAddress, license, licenseExpiry) => {
@@ -135,6 +99,7 @@ module.exports.handler = async (event, context) => {
   context.callbackWaitsForEmptyEventLoop = false;
 
   const db = await connectToDatabase(MONGODB_URI);
+  const lmpDb = await connectToLMPDatabase();
 
   // enable CORS
   const corsHeaders = {
@@ -159,8 +124,12 @@ module.exports.handler = async (event, context) => {
     return { statusCode: 422, body: "Missing email or workspace address" };
   }
 
-  const { license, expiry } = generateLicense(data);
-  data.license = license;
+  const expiry = new Date("12-31-2022");
+  const license = await generateLicense({
+    db: lmpDb,
+    workspaceAddress: data.workspaceAddress,
+    expiry,
+  });
 
   await sendEmail(data.email, data.workspaceAddress, license, expiry);
 

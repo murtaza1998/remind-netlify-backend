@@ -54,7 +54,8 @@ class PaymentEmailerClass {
 
     const planDuration = PaddlePlan.getPlanName(planId);
 
-    const license = generateLicense({
+    const license = await generateLicense({
+      db,
       workspaceAddress,
       expiry: new Date(endDate),
     });
@@ -108,7 +109,8 @@ class PaymentEmailerClass {
 
     const planDuration = PaddlePlan.getPlanName(planId);
 
-    const license = generateLicense({
+    const license = await generateLicense({
+      db,
       workspaceAddress,
       expiry: new Date(endDate),
     });
@@ -164,7 +166,8 @@ class PaymentEmailerClass {
 
     const planDuration = PaddlePlan.getPlanName(planId);
 
-    const license = generateLicense({
+    const license = await generateLicense({
+      db,
       workspaceAddress,
       expiry: new Date(endDate),
     });
@@ -263,7 +266,8 @@ class PaymentEmailerClass {
 
     const planDuration = PaddlePlan.getPlanName(planId);
 
-    const license = generateLicense({
+    const license = await generateLicense({
+      db,
       workspaceAddress,
       expiry: new Date(endDate),
     });
