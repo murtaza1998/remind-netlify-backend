@@ -1,9 +1,8 @@
 [build]
   functions = "netlify/functions/"
 
-# Include all files in all functions
 [functions]
-  included_files = ["netlify/functions/lib/**"]
+node_bundler = "esbuild"
 
 [[headers]]
   # Define which paths this specific [[headers]] block will cover.
