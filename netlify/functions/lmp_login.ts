@@ -11,6 +11,13 @@ type API_PAYLOAD = {
 };
 
 const handler: Handler = async (event, context) => {
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      body: "Cross site requests allowed!",
+    };
+  }
+
   const { body } = event;
   if (!body) {
     return {

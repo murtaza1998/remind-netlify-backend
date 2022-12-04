@@ -158,7 +158,30 @@ const handler: Handler = async (event, context) => {
     }
   }
 
-  return response;
+  let responseBody: string;
+  if (response.statusCode >= 200 && response.statusCode < 300) {
+    const result = {
+      success: true,
+      ...(response.result && { data: response.result }),
+    };
+
+    responseBody = JSON.stringify(result);
+  } else {
+    const result = {
+      success: false,
+      ...(response.error && { error: response.error }),
+    };
+
+    responseBody = JSON.stringify(result);
+  }
+
+  return {
+    statusCode: response.statusCode,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: responseBody,
+  };
 };
 
 export { handler };
