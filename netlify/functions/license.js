@@ -1,10 +1,11 @@
 const MongoClient = require("mongodb").MongoClient;
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
+const { ENV_VARIABLES } = require("./lib/configs/envVariables");
 
 // Database configurations
 const MONGODB_URI = process.env.MONGODB_URI;
-const DB_NAME = 'remind-website';
+const DB_NAME = "remind-website";
 const LICENSE_COLLECTION = "license";
 
 // private key for the server
@@ -12,85 +13,95 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const PRIVATE_KEY_PASSPHRASE = process.env.PRIVATE_KEY_PASSPHRASE;
 
 // email configuration
-const MAIL_SENDER = process.env.MAIL_SENDER;
+const MAIL_SENDER = ENV_VARIABLES.MAIL_SENDER;
 const MAIL_PASSWORD = process.env.MAIL_PASSWORD;
 
 let cachedDb = null;
 
 const connectToDatabase = async (uri) => {
-	// we can cache the access to our database to speed things up a bit
-	// (this is the only thing that is safe to cache here)
-	if (cachedDb) return cachedDb;
+  // we can cache the access to our database to speed things up a bit
+  // (this is the only thing that is safe to cache here)
+  if (cachedDb) return cachedDb;
 
-	const client = await MongoClient.connect(uri, {
-		useUnifiedTopology: true,
-	});
+  const client = await MongoClient.connect(uri, {
+    useUnifiedTopology: true,
+  });
 
-	cachedDb = client.db(DB_NAME);
+  cachedDb = client.db(DB_NAME);
 
-	return cachedDb;
+  return cachedDb;
 };
 
 function addMinutes(date, minutes) {
-	return new Date(date.getTime() + minutes*60000);
+  return new Date(date.getTime() + minutes * 60000);
 }
 
 const saveUserData = async (db, { email, workspaceAddress, license }) => {
-	console.log(`Saving license for email: ${email} and workspace address: ${workspaceAddress}`);
-	await db.collection(LICENSE_COLLECTION).insertMany([{
-		email,
-		workspaceAddress,
-		license,
-		createdAt: new Date(),
-		createdBy: 'netlify-functions',
-	}]);
+  console.log(
+    `Saving license for email: ${email} and workspace address: ${workspaceAddress}`
+  );
+  await db.collection(LICENSE_COLLECTION).insertMany([
+    {
+      email,
+      workspaceAddress,
+      license,
+      createdAt: new Date(),
+      createdBy: "netlify-functions",
+    },
+  ]);
 };
 
 const generateLicense = (data) => {
-	console.log(`Generating license for email: ${data.email} and workspace address: ${data.workspaceAddress}`);
+  console.log(
+    `Generating license for email: ${data.email} and workspace address: ${data.workspaceAddress}`
+  );
 
-	const { workspaceAddress } = data;
-	// 30 days in future
-	// const expiry = addMinutes(new Date(), 60*24*30);
-	const expiry = new Date('12-31-2022');
-	const licenseData = {
-		url: workspaceAddress,
-		expiry,
-	};
+  const { workspaceAddress } = data;
+  // 30 days in future
+  // const expiry = addMinutes(new Date(), 60*24*30);
+  const expiry = new Date("12-31-2022");
+  const licenseData = {
+    url: workspaceAddress,
+    expiry,
+  };
 
-	const license = crypto.privateEncrypt({
-			key: Buffer.from(PRIVATE_KEY, 'base64'),
-			passphrase: PRIVATE_KEY_PASSPHRASE,
-		}, Buffer.from(JSON.stringify(licenseData), 'utf8'))
-		.toString('base64');
+  const license = crypto
+    .privateEncrypt(
+      {
+        key: Buffer.from(PRIVATE_KEY, "base64"),
+        passphrase: PRIVATE_KEY_PASSPHRASE,
+      },
+      Buffer.from(JSON.stringify(licenseData), "utf8")
+    )
+    .toString("base64");
 
-	console.log('License generated: ' + license);
+  console.log("License generated: " + license);
 
-	return { license, expiry };
-}
+  return { license, expiry };
+};
 
 const sendEmail = async (email, workspaceAddress, license, licenseExpiry) => {
-	console.log(`Sending email to ${email}`);
-	
-	const transporter = nodemailer.createTransport({
-		service: 'gmail',
-		auth: {
-			user: MAIL_SENDER,
-			pass: MAIL_PASSWORD,
-		}
-	});
-	
-	const mailOptions = {
-		from: MAIL_SENDER,
-		to: email,
-		subject: `Here's your Reminder App License`,
-		html: `<div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+  console.log(`Sending email to ${email}`);
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: MAIL_SENDER,
+      pass: MAIL_PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    from: MAIL_SENDER,
+    to: email,
+    subject: `Here's your Reminder App License`,
+    html: `<div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
 		<div style="margin:50px auto;width:70%;padding:20px 0">
 		  <div style="border-bottom:1px solid #eee">
 			<a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Reminder App for Rocket.Chat</a>
 		  </div>
 		  <p style="font-size:1.1em">Hi,</p>
-		  <p>Thank you for choosing Reminder App. Here's your Premium License which you can setup following these steps. This license is valid until ${ licenseExpiry.toDateString() }.</p>
+		  <p>Thank you for choosing Reminder App. Here's your Premium License which you can setup following these steps. This license is valid until ${licenseExpiry.toDateString()}.</p>
 		  <h3>Premium License</h3>
 		<table cellpadding="0" cellspacing="0" style="background: pink;">
 		  	<tr>
@@ -111,54 +122,56 @@ const sendEmail = async (email, workspaceAddress, license, licenseExpiry) => {
 		<p style="font-size:0.9em;">Regards,<br />Reminder App Team</p>
 		  <hr style="border:none;border-top:1px solid #eee" />
 		</div>
-	  </div>`
-	};
-	
-	const result = await transporter.sendMail(mailOptions);
-	console.log(`Email sent: ${JSON.stringify(result)}`);
-}
-	
+	  </div>`,
+  };
+
+  const result = await transporter.sendMail(mailOptions);
+  console.log(`Email sent: ${JSON.stringify(result)}`);
+};
+
 module.exports.handler = async (event, context) => {
-		// otherwise the connection will never complete, since
-		// we keep the DB connection alive
-		context.callbackWaitsForEmptyEventLoop = false;
+  // otherwise the connection will never complete, since
+  // we keep the DB connection alive
+  context.callbackWaitsForEmptyEventLoop = false;
 
-		const db = await connectToDatabase(MONGODB_URI);
+  const db = await connectToDatabase(MONGODB_URI);
 
-		// enable CORS
-		const corsHeaders = {
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Headers': 'Content-Type',
-			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-		}
-		if (event.httpMethod === "OPTIONS") {
-			return {
-				statusCode: 200,
-				headers: corsHeaders,
-				body: 'Cross site requests allowed!'
-			}
-		}
+  // enable CORS
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+  };
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: "Cross site requests allowed!",
+    };
+  }
 
-		if (event.httpMethod !== "POST") {
-			return { statusCode: 400, body: "Method not allowed" };
-		}
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 400, body: "Method not allowed" };
+  }
 
-		const data = JSON.parse(event.body);
-		if (!data.email || !data.workspaceAddress) {
-			return { statusCode: 422, body: "Missing email or workspace address" };
-		}
+  const data = JSON.parse(event.body);
+  if (!data.email || !data.workspaceAddress) {
+    return { statusCode: 422, body: "Missing email or workspace address" };
+  }
 
-		const { license, expiry } = generateLicense(data);
-		data.license = license;
+  const { license, expiry } = generateLicense(data);
+  data.license = license;
 
-		await sendEmail(data.email, data.workspaceAddress, license, expiry);
+  await sendEmail(data.email, data.workspaceAddress, license, expiry);
 
-		await saveUserData(db, data);
+  await saveUserData(db, data);
 
-		console.log(`Successfully generated license & email it to: ${JSON.stringify(data)}`);
+  console.log(
+    `Successfully generated license & email it to: ${JSON.stringify(data)}`
+  );
 
-		return {
-			statusCode: 200,
-			headers: corsHeaders,
-		};
+  return {
+    statusCode: 200,
+    headers: corsHeaders,
+  };
 };
