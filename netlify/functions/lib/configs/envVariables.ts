@@ -8,4 +8,6 @@ export const ENV_VARIABLES = {
   CONTACT_US_EMAIL_NOTIFICATION: "remindersinchat@gmail.com",
   CONTACT_APPSFORCHAT_FROM_MAIL: "contact@appsforchat.com",
   CONTACT_APPSFORCHAT_MEMBER_MAIL: "murtaza.patrawala@appsforchat.com",
+  TRIAL_MONTH: "1",
+  REMINDER_LICENSE_UPGRADE: "https://appsforchat.com/reminder-app",
 };
