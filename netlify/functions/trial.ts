@@ -114,7 +114,7 @@ export const internalHandler = async ({
     return {
       statusCode: 400,
       error: {
-        message: `Error! Workspace ${workspaceAddress} already has someone signed up for a trial! Please contact us at https://appsforchat.com/contact if you think this is a mistake.`,
+        message: `Error! Workspace ${workspaceAddress} already has someone signed up for a trial! Please contact us if you think this is a mistake.`,
       },
     };
   }
@@ -165,6 +165,7 @@ export const internalHandler = async ({
     statusCode: 200,
     result: {
       license,
+      expiryDate: trialEndDate.toDateString(),
     },
   };
 };
