@@ -13,6 +13,7 @@ export const COLLECTION_LMP_SUBSCRIPTION_PAYMENT_HISTORY =
   "subscriptionPaymentHistory";
 export const COLLECTION_LMP_EMAIL_QUEUE = "emailQueue";
 export const COLLECTION_LMP_REMINDER_APP_TRIAL = "reminderAppTrial";
+export const COLLECTION_LMP_CONTACT_MESSAGES = "contactMessages";
 
 let cachedDb: Db | null = null;
 

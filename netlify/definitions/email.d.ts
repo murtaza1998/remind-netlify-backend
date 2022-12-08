@@ -46,3 +46,9 @@ export type remindAppNewTrialTemplateProps = {
   license: string;
   purchaseLink: string;
 };
+
+export type contactMessageTemplateProps = {
+  contactName: string;
+  contactEmail: string;
+  message: string;
+};

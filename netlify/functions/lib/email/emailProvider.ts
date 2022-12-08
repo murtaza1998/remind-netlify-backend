@@ -1,4 +1,5 @@
 import { createTransport } from "nodemailer";
+import Mail from "nodemailer/lib/mailer";
 import { env } from "process";
 import { ENV_VARIABLES } from "../configs/envVariables";
 
@@ -34,7 +35,7 @@ class GenericEmail {
       },
     });
 
-    const mailOptions = {
+    const mailOptions: Mail.Options = {
       from: this.SMTP_FROM,
       to,
       subject,
