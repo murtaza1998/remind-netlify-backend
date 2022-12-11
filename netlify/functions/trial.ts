@@ -9,7 +9,7 @@ import { cleanWorkspaceAddress } from "./lib/license/url";
 import moment from "moment";
 import { ENV_VARIABLES } from "./lib/configs/envVariables";
 import { generateLicense } from "./lib/license/generateLicense";
-import { TrialEmailer } from "./lib/email/trialEmailer";
+import { GenericEmailer } from "./lib/email/genericEmailer";
 import { extractNetlifySiteFromContext } from "./lib/netlify/extractNetlifyUrl";
 
 type API_PAYLOAD = {
@@ -151,7 +151,7 @@ export const internalHandler = async ({
     `Successfully inserted trial for ${email} at ${workspaceAddress}. Trial record id: ${result.insertedId}. Sending email...`
   );
 
-  await TrialEmailer.sendNewTrialEmail({
+  await GenericEmailer.sendNewTrialEmail({
     contactName,
     toEmail: email,
     workspaceAddress,

@@ -10,4 +10,5 @@ export const ENV_VARIABLES = {
   CONTACT_APPSFORCHAT_MEMBER_MAIL: "murtaza.patrawala@appsforchat.com",
   TRIAL_MONTH: "1",
   REMINDER_LICENSE_UPGRADE: "https://appsforchat.com/reminder-app",
+  REMINDER_APP_ID: "7a8cd36b-5f7b-4177-bd7f-bfc9be908bf8	",
 };
