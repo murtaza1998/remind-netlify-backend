@@ -1,12 +1,19 @@
 import { Handler } from "@netlify/functions";
 import axios, { AxiosError } from "axios";
+import { Db } from "mongodb";
 import { API_Response } from "../definitions/API";
+import { ILicenseSetupDbRecord } from "../definitions/database/licenseSetup";
 import { userPaymentData } from "../definitions/database/paddle/userPaymentData";
 import { ENV_VARIABLES } from "./lib/configs/envVariables";
 import {
+  COLLECTION_LMP_LICENSE_SETUP,
   COLLECTION_LMP_USER_PAYMENT_DATA,
   connectToLMPDatabase,
 } from "./lib/database";
+import {
+  markLicenseSetupRecordAsFailed,
+  markLicenseSetupRecordAsSuccess,
+} from "./lib/license/autoSetupLicense";
 import {
   encodeDataWithPrivateKey,
   generateLicenseWithPrivateKeyData,
@@ -16,6 +23,7 @@ import { removeTrailingSlashFromUrl } from "./lib/utils";
 
 type API_PAYLOAD = {
   subscriptionId: string;
+  updateAutoSetupLicenseRecord?: boolean;
 };
 
 enum GET_API_PAYLOAD_ACTION {
@@ -43,7 +51,9 @@ const handler: Handler = async (event, context) => {
     };
   }
 
-  const { subscriptionId } = JSON.parse(body) as API_PAYLOAD;
+  const { subscriptionId, updateAutoSetupLicenseRecord = false } = JSON.parse(
+    body
+  ) as API_PAYLOAD;
   if (!subscriptionId) {
     return {
       statusCode: 400,
@@ -55,7 +65,9 @@ const handler: Handler = async (event, context) => {
   // we keep the DB connection alive
   context.callbackWaitsForEmptyEventLoop = false;
 
-  const response = await internalHandler(subscriptionId);
+  const db = await connectToLMPDatabase();
+
+  const response = await internalHandler(db, subscriptionId);
 
   let responseBody: string;
   if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -65,6 +77,10 @@ const handler: Handler = async (event, context) => {
     };
 
     responseBody = JSON.stringify(result);
+
+    if (updateAutoSetupLicenseRecord) {
+      await markLicenseSetupRecordAsSuccess(db, subscriptionId);
+    }
   } else {
     const result = {
       success: false,
@@ -72,6 +88,14 @@ const handler: Handler = async (event, context) => {
     };
 
     responseBody = JSON.stringify(result);
+
+    if (updateAutoSetupLicenseRecord) {
+      await markLicenseSetupRecordAsFailed(
+        db,
+        subscriptionId,
+        response.error?.message || "Unknown error"
+      );
+    }
   }
 
   return {
@@ -84,10 +108,9 @@ const handler: Handler = async (event, context) => {
 };
 
 const internalHandler = async (
+  db: Db,
   subscriptionId: string
 ): Promise<API_Response> => {
-  const db = await connectToLMPDatabase();
-
   // find existing user payment data by subscription id
   const existingUserPaymentData = await db
     .collection<userPaymentData>(COLLECTION_LMP_USER_PAYMENT_DATA)
@@ -260,10 +283,6 @@ const internalHandler = async (
     new Date(endDate),
     privateData
   );
-
-  const licensePayload = {
-    license,
-  };
 
   // send request to license server to create a license
   try {

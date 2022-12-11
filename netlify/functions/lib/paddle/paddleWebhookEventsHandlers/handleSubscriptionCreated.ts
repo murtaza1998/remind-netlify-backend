@@ -2,9 +2,13 @@ import { Db } from "mongodb";
 import { COLLECTION_LMP_USER_PAYMENT_DATA } from "../../database";
 import { API_Response } from "../../../../definitions/API";
 import { userPaymentData } from "../../../../definitions/database/paddle/userPaymentData";
-import { SubscriptionCreatedRequest } from "../../../../definitions/paddle";
+import {
+  AlertName,
+  SubscriptionCreatedRequest,
+} from "../../../../definitions/paddle";
 import { PaymentEmailer } from "../../email/paymentEmailer";
 import { isPositive } from "./utils";
+import { autoSetupLicense } from "../../license/autoSetupLicense";
 
 export const handleSubscriptionCreated = async (
   db: Db,
@@ -71,12 +75,20 @@ export const handleSubscriptionCreated = async (
   );
 
   if (subscriptionCreated.status === "active") {
-    await PaymentEmailer.sendNewSubscriptionCreatedEmail(
-      db,
-      siteUrl,
-      subscriptionCreated.email,
-      upd
-    );
+    await Promise.all([
+      PaymentEmailer.sendNewSubscriptionCreatedEmail(
+        db,
+        siteUrl,
+        subscriptionCreated.email,
+        upd
+      ),
+      autoSetupLicense(
+        db,
+        siteUrl,
+        subscriptionCreated.subscription_id,
+        AlertName.SubscriptionCreated
+      ),
+    ]);
   }
 
   return {
