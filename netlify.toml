@@ -11,3 +11,8 @@ node_bundler = "esbuild"
     Access-Control-Allow-Origin = "*"
 	Access-Control-Allow-Headers = "Content-Type"
 	Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
