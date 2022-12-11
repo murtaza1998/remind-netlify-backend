@@ -72,10 +72,6 @@ const handler: Handler = async (event, context) => {
 
   return {
     statusCode: response.statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      ...corsHeaders,
-    },
     body: responseBody,
   };
 };
