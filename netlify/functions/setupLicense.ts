@@ -229,10 +229,13 @@ const internalHandler = async (
       `Verifying if workspace app is installed for subscription id ${subscriptionId} with url ${workspaceAppApiUrl}`
     );
 
-    const payload = await encodeDataWithPrivateKey(
+    let payload = await encodeDataWithPrivateKey(
       JSON.stringify(preCheckPayload),
       privateData
     );
+
+    // url encode the payload
+    payload = encodeURIComponent(payload);
 
     const workspaceAppResponse = await axios.get<{
       success: boolean;
