@@ -6,6 +6,7 @@ import { IEmailDbRecord } from "../../../definitions/database/email";
 import { generateRandomId } from "./utils";
 import axios, { AxiosError } from "axios";
 import { COLLECTION_LMP_EMAIL_QUEUE } from "../database";
+import { sleep } from "../utils";
 
 class ZohoEmailQueueClass {
   async sendEmail(
@@ -53,6 +54,9 @@ class ZohoEmailQueueClass {
       .catch((err: AxiosError) => {
         console.error(`Unable to send email ${randomId}. Error:`, err.message);
       });
+
+    // wait for 1.5 seconds before returning so that the above axios call has time to finish
+    await sleep(1500);
   }
 }
 

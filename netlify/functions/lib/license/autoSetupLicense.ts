@@ -3,6 +3,7 @@ import { Db } from "mongodb";
 import { ILicenseSetupDbRecord } from "../../../definitions/database/licenseSetup";
 import { COLLECTION_LMP_LICENSE_SETUP } from "../database";
 import { generateRandomId } from "../email/utils";
+import { sleep } from "../utils";
 
 export const autoSetupLicense = async (
   db: Db,
@@ -56,6 +57,9 @@ export const autoSetupLicense = async (
         err.message
       );
     });
+
+  // wait for 1.5 seconds before returning so that the above axios call has time to finish
+  await sleep(1500);
 };
 
 export const markLicenseSetupRecordAsFailed = async (
