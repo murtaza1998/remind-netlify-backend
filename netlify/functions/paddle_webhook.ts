@@ -86,7 +86,7 @@ const handler: Handler = async (event, context) => {
     };
   }
 
-  const siteUrl = extractNetlifySiteFromContext(context);
+  const siteUrl = await extractNetlifySiteFromContext(context);
 
   let response: API_Response;
   switch (alert_name) {

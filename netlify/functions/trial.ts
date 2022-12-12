@@ -36,7 +36,7 @@ const handler: Handler = async (event, context) => {
     };
   }
 
-  const siteUrl = extractNetlifySiteFromContext(context);
+  const siteUrl = await extractNetlifySiteFromContext(context);
 
   const { email, workspaceAddress, contactName } = JSON.parse(
     body
