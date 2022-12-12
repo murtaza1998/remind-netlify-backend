@@ -2,4 +2,4 @@ export const contactMessageEmailTemplateBody = `Hello! You have a new message fr
 
 {{message}}`;
 
-export const contactMessageEmailTemplateSubject = `New message from {{contactName}}`;
+export const contactMessageEmailTemplateSubject = `New message from website contact form`;

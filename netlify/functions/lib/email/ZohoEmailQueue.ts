@@ -26,14 +26,16 @@ class ZohoEmailQueueClass {
       throw new Error("Unable to insert email into queue");
     }
 
+    const emailEndpoint = new URL("/.netlify/functions/sendEmail").toString();
+
     console.debug(
-      `Inserted email into queue with id ${randomId} with subject ${emailInfo.subject} and to ${emailInfo.to}`
+      `Inserted email into queue with id ${randomId} with subject ${emailInfo.subject} and to ${emailInfo.to} using endpoint ${emailEndpoint}`
     );
 
     // trigger netlify function to send email
     // Purposefully not awaiting this because we don't want to block the request
     axios
-      .post(new URL("/.netlify/functions/sendEmail", siteUrl).toString(), {
+      .post(emailEndpoint.toString(), {
         emailId: randomId,
       })
       .then((res) => {
