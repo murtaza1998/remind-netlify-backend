@@ -5,6 +5,7 @@ import {
   COLLECTION_LMP_USER_PAYMENT_DATA,
   connectToLMPDatabase,
 } from "./lib/database";
+import { CORS_HEADERS, JSON_HEADERS } from "./lib/http";
 import { generateLicense } from "./lib/license/generateLicense";
 
 type API_PAYLOAD = {
@@ -14,6 +15,7 @@ const handler: Handler = async (event, context) => {
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
+      headers: CORS_HEADERS,
       body: "Cross site requests allowed!",
     };
   }
@@ -52,7 +54,8 @@ const handler: Handler = async (event, context) => {
   return {
     statusCode: response.statusCode,
     headers: {
-      "Content-Type": "application/json",
+      ...JSON_HEADERS,
+      ...CORS_HEADERS,
     },
     body: responseBody,
   };

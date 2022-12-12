@@ -7,6 +7,7 @@ import {
 import { GenericEmailer } from "./lib/email/genericEmailer";
 import { extractNetlifySiteFromContext } from "./lib/netlify/extractNetlifyUrl";
 import { IContactMsg } from "../definitions/database/contactMsg";
+import { CORS_HEADERS, JSON_HEADERS } from "./lib/http";
 
 type API_PAYLOAD = {
   email: string;
@@ -18,6 +19,7 @@ const handler: Handler = async (event, context) => {
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
+      headers: CORS_HEADERS,
       body: "Cross site requests allowed!",
     };
   }
@@ -61,7 +63,8 @@ const handler: Handler = async (event, context) => {
   return {
     statusCode: response.statusCode,
     headers: {
-      "Content-Type": "application/json",
+      ...JSON_HEADERS,
+      ...CORS_HEADERS,
     },
     body: responseBody,
   };

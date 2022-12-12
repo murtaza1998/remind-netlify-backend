@@ -21,6 +21,7 @@ import { connectToLMPDatabase } from "./lib/database";
 import { handleSubscriptionPaymentRefunded } from "./lib/paddle/paddleWebhookEventsHandlers/handleSubscriptionPaymentRefunded";
 import { extractNetlifySiteFromContext } from "./lib/netlify/extractNetlifyUrl";
 import { shouldIgnorePaddleAlert } from "./lib/paddle/shouldIgnorePaddleAlert";
+import { JSON_HEADERS } from "./lib/http";
 
 /**
  *
@@ -177,9 +178,7 @@ const handler: Handler = async (event, context) => {
 
   return {
     statusCode: response.statusCode,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: JSON_HEADERS,
     body: responseBody,
   };
 };

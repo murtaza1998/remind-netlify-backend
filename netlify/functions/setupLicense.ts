@@ -2,14 +2,13 @@ import { Handler } from "@netlify/functions";
 import axios, { AxiosError } from "axios";
 import { Db } from "mongodb";
 import { API_Response } from "../definitions/API";
-import { ILicenseSetupDbRecord } from "../definitions/database/licenseSetup";
 import { userPaymentData } from "../definitions/database/paddle/userPaymentData";
 import { ENV_VARIABLES } from "./lib/configs/envVariables";
 import {
-  COLLECTION_LMP_LICENSE_SETUP,
   COLLECTION_LMP_USER_PAYMENT_DATA,
   connectToLMPDatabase,
 } from "./lib/database";
+import { JSON_HEADERS } from "./lib/http";
 import {
   markLicenseSetupRecordAsFailed,
   markLicenseSetupRecordAsSuccess,
@@ -36,13 +35,6 @@ type GET_API_PAYLOAD = {
 };
 
 const handler: Handler = async (event, context) => {
-  if (event.httpMethod === "OPTIONS") {
-    return {
-      statusCode: 200,
-      body: "Cross site requests allowed!",
-    };
-  }
-
   const { body } = event;
   if (!body) {
     return {
@@ -100,9 +92,7 @@ const handler: Handler = async (event, context) => {
 
   return {
     statusCode: response.statusCode,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: JSON_HEADERS,
     body: responseBody,
   };
 };

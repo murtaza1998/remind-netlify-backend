@@ -11,6 +11,7 @@ import { ENV_VARIABLES } from "./lib/configs/envVariables";
 import { generateLicense } from "./lib/license/generateLicense";
 import { GenericEmailer } from "./lib/email/genericEmailer";
 import { extractNetlifySiteFromContext } from "./lib/netlify/extractNetlifyUrl";
+import { CORS_HEADERS, JSON_HEADERS } from "./lib/http";
 
 type API_PAYLOAD = {
   email: string;
@@ -19,15 +20,10 @@ type API_PAYLOAD = {
 };
 
 const handler: Handler = async (event, context) => {
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
-  };
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
-      headers: corsHeaders,
+      headers: CORS_HEADERS,
       body: "Cross site requests allowed!",
     };
   }
@@ -72,6 +68,10 @@ const handler: Handler = async (event, context) => {
 
   return {
     statusCode: response.statusCode,
+    headers: {
+      ...JSON_HEADERS,
+      ...CORS_HEADERS,
+    },
     body: responseBody,
   };
 };
