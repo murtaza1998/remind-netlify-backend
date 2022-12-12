@@ -32,7 +32,7 @@ const handler: Handler = async (event, context) => {
     };
   }
 
-  const siteUrl = await extractNetlifySiteFromContext(context);
+  const siteUrl = extractNetlifySiteFromContext(context);
 
   const { email, message, contactName } = JSON.parse(body) as API_PAYLOAD;
 
