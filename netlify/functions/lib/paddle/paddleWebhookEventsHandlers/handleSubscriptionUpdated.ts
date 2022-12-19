@@ -3,10 +3,12 @@ import { COLLECTION_LMP_USER_PAYMENT_DATA } from "../../database";
 import { API_Response } from "../../../../definitions/API";
 import { userPaymentData } from "../../../../definitions/database/paddle/userPaymentData";
 import {
+  AlertName,
   PaddleSubscriptionStatus,
   SubscriptionUpdatedRequest,
 } from "../../../../definitions/paddle";
 import { PaymentEmailer } from "../../email/paymentEmailer";
+import { autoSetupLicense } from "../../license/autoSetupLicense";
 
 export const handleSubscriptionUpdated = async (
   db: Db,
@@ -70,18 +72,25 @@ export const handleSubscriptionUpdated = async (
   }
 
   if (subscriptionUpdated.status === PaddleSubscriptionStatus.Active) {
-    // send email to user
-    await PaymentEmailer.activeSubscriptionsUpdatedEmail({
-      db,
-      siteUrl,
-      to: existingUserPaymentData.email,
-      subscription: {
-        planId: subscriptionUpdated.subscription_plan_id,
-        endDate: subscriptionUpdated.next_bill_date,
-      },
-      passthrough: existingUserPaymentData.passthrough,
-      updatedDate: subscriptionUpdated.event_time,
-    });
+    await Promise.all([
+      PaymentEmailer.activeSubscriptionsUpdatedEmail({
+        db,
+        siteUrl,
+        to: existingUserPaymentData.email,
+        subscription: {
+          planId: subscriptionUpdated.subscription_plan_id,
+          endDate: subscriptionUpdated.next_bill_date,
+        },
+        passthrough: existingUserPaymentData.passthrough,
+        updatedDate: subscriptionUpdated.event_time,
+      }),
+      autoSetupLicense(
+        db,
+        siteUrl,
+        subscriptionUpdated.subscription_id,
+        AlertName.SubscriptionUpdated
+      ),
+    ]);
   }
 
   return {

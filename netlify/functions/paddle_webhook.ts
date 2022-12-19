@@ -20,6 +20,8 @@ import { handleSubscriptionPaymentFailed } from "./lib/paddle/paddleWebhookEvent
 import { connectToLMPDatabase } from "./lib/database";
 import { handleSubscriptionPaymentRefunded } from "./lib/paddle/paddleWebhookEventsHandlers/handleSubscriptionPaymentRefunded";
 import { extractNetlifySiteFromContext } from "./lib/netlify/extractNetlifyUrl";
+import { shouldIgnorePaddleAlert } from "./lib/paddle/shouldIgnorePaddleAlert";
+import { JSON_HEADERS } from "./lib/http";
 
 /**
  *
@@ -72,12 +74,22 @@ const handler: Handler = async (event, context) => {
   // we keep the DB connection alive
   context.callbackWaitsForEmptyEventLoop = false;
 
+  const { alert_name, alert_id } = parsedBody;
+
   const db = await connectToLMPDatabase();
+
+  if (shouldIgnorePaddleAlert(alert_id)) {
+    console.info(`Ignoring alert ${alert_id}`);
+    return {
+      statusCode: 200,
+      body: "Ignored, alert_id was in the ignored list",
+    };
+  }
 
   const siteUrl = extractNetlifySiteFromContext(context);
 
   let response: API_Response;
-  switch (parsedBody.alert_name) {
+  switch (alert_name) {
     case AlertName.SubscriptionCreated: {
       const subscriptionCreated = parsedBody as SubscriptionCreatedRequest;
       response = await handleSubscriptionCreated(
@@ -147,7 +159,28 @@ const handler: Handler = async (event, context) => {
     }
   }
 
-  return response;
+  let responseBody: string;
+  if (response.statusCode >= 200 && response.statusCode < 300) {
+    const result = {
+      success: true,
+      ...(response.result && { data: response.result }),
+    };
+
+    responseBody = JSON.stringify(result);
+  } else {
+    const result = {
+      success: false,
+      ...(response.error && { error: response.error }),
+    };
+
+    responseBody = JSON.stringify(result);
+  }
+
+  return {
+    statusCode: response.statusCode,
+    headers: JSON_HEADERS,
+    body: responseBody,
+  };
 };
 
 export { handler };

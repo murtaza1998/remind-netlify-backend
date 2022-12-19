@@ -1,5 +1,8 @@
 const MongoClient = require("mongodb").MongoClient;
 const nodemailer = require("nodemailer");
+
+import moment from "moment";
+
 import { connectToLMPDatabase } from "./lib/database";
 import { ENV_VARIABLES } from "./lib/configs/envVariables";
 import { generateLicense } from "./lib/license/generateLicense";
@@ -124,7 +127,7 @@ const handler = async (event, context) => {
     return { statusCode: 422, body: "Missing email or workspace address" };
   }
 
-  const expiry = new Date("12-31-2022");
+  const expiry = moment().add(1, "month").toDate();
   const license = await generateLicense({
     db: lmpDb,
     workspaceAddress: data.workspaceAddress,

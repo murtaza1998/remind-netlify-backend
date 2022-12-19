@@ -6,6 +6,7 @@ import { IEmailDbRecord } from "../../../definitions/database/email";
 import { generateRandomId } from "./utils";
 import axios, { AxiosError } from "axios";
 import { COLLECTION_LMP_EMAIL_QUEUE } from "../database";
+import { sleep } from "../utils";
 
 class ZohoEmailQueueClass {
   async sendEmail(
@@ -26,14 +27,19 @@ class ZohoEmailQueueClass {
       throw new Error("Unable to insert email into queue");
     }
 
+    const emailEndpoint = new URL(
+      "/.netlify/functions/sendEmail",
+      siteUrl
+    ).toString();
+
     console.debug(
-      `Inserted email into queue with id ${randomId} with subject ${emailInfo.subject} and to ${emailInfo.to}`
+      `Inserted email into queue with id ${randomId} with subject ${emailInfo.subject} and to ${emailInfo.to} using endpoint ${emailEndpoint}`
     );
 
     // trigger netlify function to send email
     // Purposefully not awaiting this because we don't want to block the request
     axios
-      .post(new URL("/.netlify/functions/sendEmail", siteUrl).toString(), {
+      .post(emailEndpoint.toString(), {
         emailId: randomId,
       })
       .then((res) => {
@@ -48,6 +54,9 @@ class ZohoEmailQueueClass {
       .catch((err: AxiosError) => {
         console.error(`Unable to send email ${randomId}. Error:`, err.message);
       });
+
+    // wait for 1.5 seconds before returning so that the above axios call has time to finish
+    await sleep(1500);
   }
 }
 

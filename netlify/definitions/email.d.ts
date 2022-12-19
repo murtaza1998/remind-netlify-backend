@@ -38,3 +38,17 @@ export type paymentFailedWithinGracePeriodTemplateProps = {
 export type paymentFailedWithSubsPausedTemplateProps = {
   planDuration: "Monthly" | "Yearly";
 };
+
+export type remindAppNewTrialTemplateProps = {
+  contactName: string;
+  workspaceAddress: string;
+  trialExpiry: string;
+  license: string;
+  purchaseLink: string;
+};
+
+export type contactMessageTemplateProps = {
+  contactName: string;
+  contactEmail: string;
+  message: string;
+};

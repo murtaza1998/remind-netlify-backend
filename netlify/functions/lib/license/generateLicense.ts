@@ -11,15 +11,12 @@ type Props = {
   expiry: Date;
 };
 
-export const generateLicense = async ({
-  workspaceAddress,
-  expiry,
-  db,
-}: Props) => {
-  console.info(
-    `Generating license for workspace address: ${workspaceAddress} with expiry: ${expiry}`
-  );
-
+export const getPrivateKeyAndPassphrase = async (
+  db: Db
+): Promise<{
+  privateKey: string;
+  passphrase: string;
+}> => {
   if (!env.PRIVATE_KEY_PASSPHRASE) {
     throw new Error("private key passphrase not set");
   }
@@ -37,19 +34,72 @@ export const generateLicense = async ({
 
   const PRIVATE_KEY = dbRecord.value;
 
+  return {
+    privateKey: PRIVATE_KEY,
+    passphrase: PRIVATE_KEY_PASSPHRASE,
+  };
+};
+
+export const encodeDataWithPrivateKey = async (
+  data: string,
+  { privateKey, passphrase }: { privateKey: string; passphrase: string }
+): Promise<string> =>
+  privateEncrypt(
+    {
+      key: Buffer.from(privateKey, "base64"),
+      passphrase,
+    },
+    Buffer.from(data, "utf8")
+  ).toString("base64");
+
+export const generateLicense = async ({
+  workspaceAddress,
+  expiry,
+  db,
+}: Props) => {
+  console.info(
+    `Generating license for workspace address: ${workspaceAddress} with expiry: ${expiry}`
+  );
+
+  const privateData = await getPrivateKeyAndPassphrase(db);
+
   const licenseData: IReminderAppLicense = {
     schemaVersion: 2,
     url: workspaceAddress,
     expiry,
   };
 
-  const license = privateEncrypt(
-    {
-      key: Buffer.from(PRIVATE_KEY, "base64"),
-      passphrase: PRIVATE_KEY_PASSPHRASE,
-    },
-    Buffer.from(JSON.stringify(licenseData), "utf8")
-  ).toString("base64");
+  const license = await encodeDataWithPrivateKey(
+    JSON.stringify(licenseData),
+    privateData
+  );
+
+  console.debug(
+    `Generated license: ${license} for workspace: ${workspaceAddress}`
+  );
+
+  return license;
+};
+
+export const generateLicenseWithPrivateKeyData = async (
+  workspaceAddress: string,
+  expiry: Date,
+  { privateKey, passphrase }: { privateKey: string; passphrase: string }
+): Promise<string> => {
+  console.info(
+    `Generating license for workspace address: ${workspaceAddress} with expiry: ${expiry}`
+  );
+
+  const licenseData: IReminderAppLicense = {
+    schemaVersion: 2,
+    url: workspaceAddress,
+    expiry,
+  };
+
+  const license = await encodeDataWithPrivateKey(JSON.stringify(licenseData), {
+    privateKey,
+    passphrase,
+  });
 
   console.debug(
     `Generated license: ${license} for workspace: ${workspaceAddress}`

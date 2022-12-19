@@ -2,6 +2,7 @@ import { Handler } from "@netlify/functions";
 import { connectToLMPDatabase, COLLECTION_LMP_USERS } from "./lib/database";
 import { API_Response } from "../definitions/API";
 import { hashOf } from "./lib/hash";
+import { CORS_HEADERS, JSON_HEADERS } from "./lib/http";
 
 type API_PAYLOAD = {
   email: string;
@@ -11,6 +12,14 @@ type API_PAYLOAD = {
 };
 
 const handler: Handler = async (event, context) => {
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: "Cross site requests allowed!",
+    };
+  }
+
   const { body } = event;
   if (!body) {
     return {
@@ -40,7 +49,8 @@ const handler: Handler = async (event, context) => {
   return {
     statusCode: response.statusCode,
     headers: {
-      "Content-Type": "application/json",
+      ...JSON_HEADERS,
+      ...CORS_HEADERS,
     },
     body: bodyString,
   };

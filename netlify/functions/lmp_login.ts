@@ -4,6 +4,7 @@ import { lmpUser } from "../definitions/database/lmpUser";
 import { verifyHash } from "./lib/hash";
 import { createJwt } from "./lib/jwt";
 import { connectToLMPDatabase, COLLECTION_LMP_USERS } from "./lib/database";
+import { CORS_HEADERS, JSON_HEADERS } from "./lib/http";
 
 type API_PAYLOAD = {
   email: string;
@@ -11,6 +12,14 @@ type API_PAYLOAD = {
 };
 
 const handler: Handler = async (event, context) => {
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: JSON_HEADERS,
+      body: "Cross site requests allowed!",
+    };
+  }
+
   const { body } = event;
   if (!body) {
     return {
@@ -36,7 +45,8 @@ const handler: Handler = async (event, context) => {
   return {
     statusCode: response.statusCode,
     headers: {
-      "Content-Type": "application/json",
+      ...JSON_HEADERS,
+      ...CORS_HEADERS,
     },
     body: bodyString,
   };

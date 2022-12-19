@@ -7,12 +7,14 @@ import { API_Response } from "../../../../definitions/API";
 import { userPaymentData } from "../../../../definitions/database/paddle/userPaymentData";
 import { subscriptionPaymentHistory } from "../../../../definitions/database/paddle/userPaymentHistory";
 import {
+  AlertName,
   PaddleSubscriptionStatus,
   PaymentStatus,
   SubscriptionPaymentSucceededRequest,
 } from "../../../../definitions/paddle";
 import { PaymentEmailer } from "../../email/paymentEmailer";
 import { isPositive } from "./utils";
+import { autoSetupLicense } from "../../license/autoSetupLicense";
 
 export const handleSubscriptionPaymentSucceeded = async (
   db: Db,
@@ -117,18 +119,26 @@ export const handleSubscriptionPaymentSucceeded = async (
     }
 
     if (latestSubscriptionStatus === PaddleSubscriptionStatus.Active) {
-      await PaymentEmailer.sendSubscriptionRenewedEmail({
-        db,
-        siteUrl,
-        to: existingUserPaymentData.email,
-        subscription: {
-          planId: existingUserPaymentData.subscription.planId,
-          endDate: next_bill_date,
-        },
-        passthrough: existingUserPaymentData.passthrough,
-        renewalDate: paymentHistory.createdAt,
-        renewalReceipt: receipt_url,
-      });
+      await Promise.all([
+        PaymentEmailer.sendSubscriptionRenewedEmail({
+          db,
+          siteUrl,
+          to: existingUserPaymentData.email,
+          subscription: {
+            planId: existingUserPaymentData.subscription.planId,
+            endDate: next_bill_date,
+          },
+          passthrough: existingUserPaymentData.passthrough,
+          renewalDate: paymentHistory.createdAt,
+          renewalReceipt: receipt_url,
+        }),
+        autoSetupLicense(
+          db,
+          siteUrl,
+          subscriptionSucceeded.subscription_id,
+          AlertName.SubscriptionPaymentSucceeded
+        ),
+      ]);
     }
   }
 
