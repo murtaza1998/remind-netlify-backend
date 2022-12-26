@@ -9,6 +9,10 @@ import {
   contactMessageEmailTemplateSubject,
 } from "./templates/contactMessageEmailTemplate";
 import {
+  remindAppNewsletterSubscriptionTemplateBody,
+  remindAppNewsletterSubscriptionTemplateSubject,
+} from "./templates/newsletterSubscriptionTemplate";
+import {
   remindAppNewTrialEmailTemplateBody,
   remindAppNewTrialEmailTemplateSubject,
 } from "./templates/remindAppNewTrialEmailTemplate";
@@ -102,6 +106,41 @@ class GenericEmailerClass {
       console.debug(
         `Email pushed to queue for ${ENV_VARIABLES.CONTACT_APPSFORCHAT_FROM_MAIL}`
       );
+    } catch (error) {
+      // Let's not fail the whole request if the email fails
+      console.error(
+        `Failed to send email contact message from ${contactEmail}`,
+        error
+      );
+    }
+  }
+
+  async sendNewsletterSubscriptionCreatedEmail({
+    db,
+    contactEmail,
+    siteUrl,
+  }: {
+    db: Db;
+    contactEmail: string;
+    siteUrl: string;
+  }): Promise<void> {
+    console.info(
+      `Sending new newsletter subscription email from ${contactEmail}`
+    );
+
+    const emailBody = remindAppNewsletterSubscriptionTemplateBody;
+
+    console.debug(`Pushing email to queue for ${contactEmail}`);
+
+    try {
+      await ZohoEmailQueue.sendEmail(db, siteUrl, {
+        from: ENV_VARIABLES.CONTACT_APPSFORCHAT_FROM_MAIL,
+        to: contactEmail,
+        subject: remindAppNewsletterSubscriptionTemplateSubject,
+        html: emailBody,
+      });
+
+      console.debug(`Email pushed to queue for ${contactEmail}`);
     } catch (error) {
       // Let's not fail the whole request if the email fails
       console.error(
