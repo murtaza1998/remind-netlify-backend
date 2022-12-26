@@ -15,6 +15,8 @@ export const COLLECTION_LMP_EMAIL_QUEUE = "emailQueue";
 export const COLLECTION_LMP_REMINDER_APP_TRIAL = "reminderAppTrial";
 export const COLLECTION_LMP_CONTACT_MESSAGES = "contactMessages";
 export const COLLECTION_LMP_LICENSE_SETUP = "licenseSetup";
+export const COLLECTION_LMP_NEWSLETTER_SUBSCRIPTIONS =
+  "newsletterSubscriptions";
 
 let cachedDb: Db | null = null;
 
