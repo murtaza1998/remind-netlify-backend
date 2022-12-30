@@ -4,7 +4,7 @@ export const paymentFailedWithSubsPausedBody = `<div style="font-family: Helveti
 	<a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Oh no! Your Subscription was paused for Reminder App</a>
   </div>
   <p style="font-size:1.1em">Hi,</p>
-<p>Unfortunately we were unable to process payment for your <b>Reminder App</b> Premium License {{planDuration}} subscription.  Your subscription has been paused and you've been downgraded to free plan where you won't have access all our <a href="https://add-reminders.gitbook.io/docs/guides/premium-license/benefits-of-getting-license"> premium app features</a>.<p/>
+<p>Unfortunately we were unable to process payment for your <b>Reminder App</b> Premium License {{planDuration}} subscription.  Your subscription has been paused and you've been downgraded to free plan where you won't have access all our <a href="https://docs.appsforchat.com/reminder-bot/guides/premium-license/benefits-of-getting-license"> premium app features</a>.<p/>
 <p> Please <a href="https://appsforchat.com/contact">contact us</a> if you wish to restart your subscription </p>
 
 <p style="font-size:0.9em;">Regards,<br />Reminder App Team</p>
