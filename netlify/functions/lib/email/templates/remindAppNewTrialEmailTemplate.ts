@@ -2,7 +2,7 @@ export const remindAppNewTrialEmailTemplateBody = `<div style="font-family: Helv
 <div style="margin:50px auto;width:70%;padding:20px 0">
   <p style="font-size:1.1em">Hello {{contactName}}</p>
   <p>First off, thanks for signing up for Reminder App! My name is Murtaza and I'm the creator of this app. I'm excited to have you on board and I'm here to help you get started 🤗</p>
-  <p>Hopefully you've had a chance to install this app on your Rocket.Chat workspace and play around a bit. If you haven't, no worries. Take a look at our docs over <a href="https://add-reminders.gitbook.io/docs"> here to get started</a>.
+  <p>Hopefully you've had a chance to install this app on your Rocket.Chat workspace and play around a bit. If you haven't, no worries. Take a look at our docs over <a href="https://docs.appsforchat.com/reminder-bot"> here to get started</a>.
 </p>
   <p> Next, I'll walk you through on how to activate all the premium features of the Reminder app on your workspace with this setup guide.</p>
   <h3>License Setup Guide</h3>

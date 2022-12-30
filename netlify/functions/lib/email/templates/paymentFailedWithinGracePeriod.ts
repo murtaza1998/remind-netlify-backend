@@ -6,7 +6,7 @@ export const paymentFailedWithinGracePeriodBody = `<div style="font-family: Helv
 		  <p style="font-size:1.1em">Hi,</p>
       <p>Unfortunately we were unable to charge you for your <b>Reminder App</b> Premium License subscription.<p/>
       <p> We don't want your service to get interrupted, so we've extended your subscription until <u><b>{{nextBillDate}}</b></u> while you can fix this by updating your billing information. You can find the license key for this attached to this email.</p>
-      <p>Note: As per our policy, we automatically try to retry payment for maximum 3 times past due date (on 3rd, 5th and 7th day post due date). During this period, your subscription will still be active. However, after the 3rd retry, if the payment is still failing, then your subscription will be paused and you've be migrated to free plan where you won't have access to our <a href="https://add-reminders.gitbook.io/docs/guides/premium-license/benefits-of-getting-license"> premium features</a>. </p>
+      <p>Note: As per our policy, we automatically try to retry payment for maximum 3 times past due date (on 3rd, 5th and 7th day post due date). During this period, your subscription will still be active. However, after the 3rd retry, if the payment is still failing, then your subscription will be paused and you've be migrated to free plan where you won't have access to our <a href="https://docs.appsforchat.com/reminder-bot/guides/premium-license/benefits-of-getting-license"> premium features</a>. </p>
       <table width="100%" cellspacing="0" cellpadding="0">
   <tr>
       <td>
@@ -30,7 +30,7 @@ export const paymentFailedWithinGracePeriodBody = `<div style="font-family: Helv
 		</td>
 	</tr>
 </table>
-<h3>License Setup Guide:</h3> <a href="https://add-reminders.gitbook.io/docs/guides/premium-license/how-to-set-up-your-license-on-rocket.chat-server">Click here for instructions on how to setup your license key</a>
+<h3>License Setup Guide:</h3> <a href="https://docs.appsforchat.com/reminder-bot/guides/premium-license/how-to-set-up-your-license-on-rocket.chat-server">Click here for instructions on how to setup your license key</a>
 <h3>A couple of important notes about your license key:</h3>
 <ul>
 <li>It's for workspace with URL: {{workspaceAddress}}</li>

@@ -15,12 +15,12 @@ export const subRenewalSuccessEmailTemplateBody = `<div style="font-family: Helv
 	</tr>
 </table>
 <h3>Renewal Transaction receipt:</h3> <a href="{{renewalReceipt}}">Click here for download your payment receipt for this renewal subscription</a>
-<h3>License Setup Guide:</h3> <a href="https://add-reminders.gitbook.io/docs/guides/premium-license/how-to-set-up-your-license-on-rocket.chat-server">Click here for instructions on how to setup your license key</a>
+<h3>License Setup Guide:</h3> <a href="https://docs.appsforchat.com/reminder-bot/guides/premium-license/how-to-set-up-your-license-on-rocket.chat-server">Click here for instructions on how to setup your license key</a>
 <h3>A couple of important notes about your license key:</h3>
 <ul>
 <li>It's for workspace with URL: {{workspaceAddress}}</li>
 <li>Its valid until: {{licenseExpiration}}</li>
-<li>On your next renewal, we'd send you an another license key which should get replaced with this one. You can find more info about the renewal process <a href="https://add-reminders.gitbook.io/docs/guides/premium-license">here</a>.</li>
+<li>On your next renewal, we'd send you an another license key which should get replaced with this one. You can find more info about the renewal process <a href="https://docs.appsforchat.com/reminder-bot/guides/premium-license">here</a>.</li>
 </ul>
 
 	<h4> Facing any problems?</h4>
