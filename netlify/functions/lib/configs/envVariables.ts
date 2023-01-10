@@ -1,7 +1,5 @@
 // Due to 4kb limit on Netlify functions, we need to use a separate file for env variables :(
 export const ENV_VARIABLES = {
-  PADDLE_PLAN_MONTHLY_ID: "40758",
-  PADDLE_PLAN_YEARLY_ID: "40418",
   ZOHO_SMTP_HOST: "smtp.zoho.in",
   ZOHO_SMTP_PORT: "465",
   CONTACT_APPSFORCHAT_FROM_MAIL: "contact@appsforchat.com",
