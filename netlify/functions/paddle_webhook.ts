@@ -64,6 +64,9 @@ const handler: Handler = async (event, context) => {
   }
 
   if (!isPaddleWebhookValid(parsedBody)) {
+    console.error(
+      `Invalid Paddle webhook received: ${parsedBody.alert_name} with alert_id ${parsedBody.alert_id}. Looks like the webhook is not coming from Paddle.`
+    );
     return {
       statusCode: 400,
       body: "Invalid Paddle webhook",
