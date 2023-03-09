@@ -18,7 +18,7 @@ import {
   generateLicenseWithPrivateKeyData,
   getPrivateKeyAndPassphrase,
 } from "./lib/license/generateLicense";
-import { removeTrailingSlashFromUrl } from "./lib/utils";
+import { addDaysToDate, removeTrailingSlashFromUrl } from "./lib/utils";
 
 type API_PAYLOAD = {
   subscriptionId: string;
@@ -270,10 +270,13 @@ const internalHandler = async (
     }
   }
 
+  // add 7 days buffer so user can renew before license expires
+  const licenseEndDatePlus7Days = addDaysToDate(new Date(endDate), 7);
+
   // create a license for the user
   const license = await generateLicenseWithPrivateKeyData(
     workspaceAddress,
-    new Date(endDate),
+    licenseEndDatePlus7Days,
     privateData
   );
 

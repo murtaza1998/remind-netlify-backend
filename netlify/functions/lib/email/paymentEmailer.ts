@@ -11,6 +11,7 @@ import {
 import { ENV_VARIABLES } from "../configs/envVariables";
 import { generateLicense } from "../license/generateLicense";
 import { PaddlePlan } from "../paddle/plan";
+import { addDaysToDate } from "../utils";
 import {
   activeSubsUpdatedEmailTemplateBody,
   activeSubsUpdatedEmailTemplateSubject,
@@ -54,10 +55,13 @@ class PaymentEmailerClass {
 
     const planDuration = PaddlePlan.getPlanName(planId);
 
+    // add 7 days buffer so user can renew before license expires
+    const licenseEndDatePlus7Days = addDaysToDate(new Date(endDate), 7);
+
     const license = await generateLicense({
       db,
       workspaceAddress,
-      expiry: new Date(endDate),
+      expiry: licenseEndDatePlus7Days,
     });
 
     const emailBody = substituteEmailTemplateParams<newSubAddedTemplateProps>(
@@ -109,10 +113,12 @@ class PaymentEmailerClass {
 
     const planDuration = PaddlePlan.getPlanName(planId);
 
+    const licenseEndDatePlus7Days = addDaysToDate(new Date(endDate), 7);
+
     const license = await generateLicense({
       db,
       workspaceAddress,
-      expiry: new Date(endDate),
+      expiry: licenseEndDatePlus7Days,
     });
 
     const emailBody =
@@ -166,10 +172,12 @@ class PaymentEmailerClass {
 
     const planDuration = PaddlePlan.getPlanName(planId);
 
+    const licenseEndDatePlus7Days = addDaysToDate(new Date(endDate), 7);
+
     const license = await generateLicense({
       db,
       workspaceAddress,
-      expiry: new Date(endDate),
+      expiry: licenseEndDatePlus7Days,
     });
 
     const emailBody =
